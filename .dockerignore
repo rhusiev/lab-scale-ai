@@ -1,0 +1,9 @@
+# .dockerignore
+finetuned_model
+logs
+outputs
+peft_model
+results
+wandb
+__pycache__
+.DS_Store

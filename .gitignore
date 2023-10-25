@@ -1,0 +1,10 @@
+.DS_Store
+evaluate_name_nationality_bias.py
+finetuned_model/
+logs/
+name_nationality_bias/
+outputs/
+peft_model/
+__pycache__/
+results/
+wandb/
