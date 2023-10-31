@@ -7,4 +7,10 @@ outputs/
 peft_model/
 __pycache__/
 results/
+tasks/finetuned_model/
+tasks/logs/
+tasks/outputs/
+tasks/results/
+tasks/wandb/
+tasks/peft_model/
 wandb/

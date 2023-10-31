@@ -4,6 +4,12 @@ logs
 outputs
 peft_model
 results
+tasks/finetuned_model
+tasks/logs
+tasks/outputs
+tasks/results
+tasks/wandb
+tasks/peft_model
 wandb
 __pycache__
 .DS_Store
