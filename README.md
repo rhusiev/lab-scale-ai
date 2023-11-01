@@ -90,8 +90,9 @@ Candidate performance tasks:
 4. Science QA (Bingbing, PubmedQA, maybe a vision-based science QA model from we have no moat?)
 5. Text segmentation alignment (Eva, LLMs for algorithmic work)
 6. Entity resolution (Isaac, LLMs to replace custom AI models which replaced classical methods)
-7. Text summarization: (Bin)
+7. Text summarization: Medical conversations (Bin)
 8. Named entity extraction: Case records extraction (Bingbing's results)
+9. Text summarization: nationality & bias (Yiwei) 
  
 
 ### Fairness task selection
