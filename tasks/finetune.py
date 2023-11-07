@@ -64,8 +64,7 @@ def format_data_as_instructions(data: Mapping,
 def get_model_and_tokenizer(model_id: str, 
                             quantization_type: str='', 
                             gradient_checkpointing: bool=True, 
-                            device: str='auto',
-                            max_memory: Mapping=None) -> tuple[AutoModel, AutoTokenizer]:
+                            device: str='auto') -> tuple[AutoModel, AutoTokenizer]:
     """
     Returns a Transformers model and tokenizer for fine-tuning. If quantization_type is provided, the model will be quantized and prepared for training.
     """
@@ -81,8 +80,7 @@ def get_model_and_tokenizer(model_id: str,
     if quantization_type:
         model = AutoModelForCausalLM.from_pretrained(model_id, 
                                                      quantization_config=QUANZATION_MAP[quantization_type], 
-                                                     device_map=device,
-                                                     max_memory=max_memory)
+                                                     device_map=device)
     else:
         model = AutoModelForCausalLM.from_pretrained(model_id, 
                                                      device_map=device)

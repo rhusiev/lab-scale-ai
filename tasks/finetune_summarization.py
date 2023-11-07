@@ -39,7 +39,7 @@ if __name__ == '__main__':
 
     # Dataset arguments
     parser.add_argument('--dataset', type=str, default='cnn_dailymail', help='The dataset to use for fine-tuning.')
-    parser.add_argument('--version', type=str, default='3.0.0', help='The version of the dataset to use for fine-tuning.')
+    parser.add_argument('--version', type=str, default='3.0.0', nargs='?', help='The version of the dataset to use for fine-tuning.')
     parser.add_argument('--input_col', type=str, default='article', help='The name of the input column in the dataset.')
     parser.add_argument('--target_col', type=str, default='highlights', help='The name of the target column in the dataset.')
     parser.add_argument('--train_slice', type=str, default='train[:50]', help='The slice of the training dataset to use for fine-tuning.')
@@ -108,7 +108,7 @@ if __name__ == '__main__':
 
     # HF Login
     if args.hf_token_var:
-        hf_login(getenv(args.hf_token_var))
+        hf_login(token=getenv(args.hf_token_var))
 
     # Initialize W&B
     if args.wandb_logging == 'True':
