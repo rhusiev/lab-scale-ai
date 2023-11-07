@@ -12,5 +12,6 @@ tasks/logs/
 tasks/outputs/
 tasks/results/
 tasks/wandb/
+/tasks/__pycache__/
 tasks/peft_model/
 wandb/

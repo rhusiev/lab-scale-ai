@@ -29,8 +29,8 @@ COPY . /app
 WORKDIR /app
 
 # Install all requirements
-RUN pip install -r requirements.txt
+RUN pip install -r /app/requirements.txt
 
-CMD ["python", "app/finetune_lora_summarization.py"]
+CMD ["python", "app/tasks/finetune_summarization.py"]
 
 EXPOSE 80
