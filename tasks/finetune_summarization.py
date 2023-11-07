@@ -158,11 +158,10 @@ if __name__ == '__main__':
     model, tokenizer = get_model_and_tokenizer(args.model_id,
                                                quantization_type=args.quantization_type,
                                                gradient_checkpointing=bool(args.gradient_checkpointing),
-                                               device=args.device,
-                                               max_memory={i: args.max_memory for i in range(torch.cuda.device_count())} if args.max_memory else None)
-    
+                                               device=args.device)
+
     logger.info(f'Loaded Model ID: {args.model_id}')
-    
+
     # Get LoRA model
     if args.lora == 'True':
 
@@ -176,11 +175,11 @@ if __name__ == '__main__':
             lora_modules = [bnb.nn.Linear8bit]
         else:
             raise ValueError(f'Invalid tune_modules argument: {args.tune_modules}, must be linear, linear4bit, or linear8bit')
-        
+
         model = get_lora_model(model,
                                include_modules=lora_modules,
                                exclude_names=args.exclude_names)
-        
+
         logger.info(f'Loaded LoRA Model')
     
     # Download and prepare data

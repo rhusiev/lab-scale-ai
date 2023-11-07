@@ -84,9 +84,16 @@ Performance tasks should be:
 
 Candidate performance tasks:
 
-1. Fact-Checking: FreshQA
-2. Text Summarization: CNN DailyNews
-3. Hybrid Hiring
+1. Fact-Checking: FreshQA (Robert)
+2. Text Summarization: CNN DailyNews (Robert)
+3. Hybrid Hiring (Isaac)
+4. Science QA (Bingbing, PubmedQA, maybe a vision-based science QA model from we have no moat?)
+5. Text segmentation alignment (Eva, LLMs for algorithmic work)
+6. Entity resolution (Isaac, LLMs to replace custom AI models which replaced classical methods)
+7. Text summarization: Medical conversations (Bin)
+8. Named entity extraction: Case records extraction (Bingbing's results)
+9. Text summarization: nationality & bias (Yiwei) 
+ 
 
 ### Fairness task selection
 
@@ -99,6 +106,19 @@ Candidate fairness tasks:
 
 1. Name-nationality bias (Text Summarization)
 2. Differential TPR in occupation prediction (Hybrid Hiring)
+
+### Experiment Design
+
+Question: Can $25 models compete with state of the art models on representative tasks?
+
+Principles:
+- Each task should be run on all candidate open models above, where possible, AND at least GPT-4 (and maybe other closed models if time)
+- Each task should produce a single number at least (Accuracy on test set, etc.)  We will compare this number with that produced by GPT-4.  There is no requirement that these results be comparable across tasks
+- Parallel/distributed training is in scope, using well-supported open source frameworks as needed, e.g. HuggingFace
+- Each task should use the functions in this repo whenever possible to improve consistency
+- Each task should declare whether data is fully public/shareable or not, with a strong preference for public/shareable.
+  
+
 
 ### Evaluation Settings
 
