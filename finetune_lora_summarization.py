@@ -247,7 +247,7 @@ if __name__ == '__main__':
 
     # Dataset arguments
     parser.add_argument('--dataset', type=str, default='cnn_dailymail', help='The dataset to use for fine-tuning.')
-    parser.add_argument('--version', type=str, default='3.0.0', help='The version of the dataset to use for fine-tuning.')
+    parser.add_argument('--version', type=str, default='3.0.0', nargs='?', help='The version of the dataset to use for fine-tuning.')
     parser.add_argument('--input_col', type=str, default='article', help='The name of the input column in the dataset.')
     parser.add_argument('--target_col', type=str, default='highlights', help='The name of the target column in the dataset.')
     parser.add_argument('--train_slice', type=str, default='train[:50]', help='The slice of the training dataset to use for fine-tuning.')
@@ -366,9 +366,9 @@ if __name__ == '__main__':
                                                quantization_type=args.quantization_type,
                                                gradient_checkpointing=bool(args.gradient_checkpointing),
                                                device=args.device)
-    
+
     logger.info(f'Loaded Model ID: {args.model_id}')
-    
+
     # Get LoRA model
     if args.lora == 'True':
 
@@ -382,11 +382,11 @@ if __name__ == '__main__':
             lora_modules = [bnb.nn.Linear8bit]
         else:
             raise ValueError(f'Invalid tune_modules argument: {args.tune_modules}, must be linear, linear4bit, or linear8bit')
-        
+
         model = get_lora_model(model,
                                include_modules=lora_modules,
                                exclude_names=args.exclude_names)
-        
+
         logger.info(f'Loaded LoRA Model')
     
     # Download and prepare data
