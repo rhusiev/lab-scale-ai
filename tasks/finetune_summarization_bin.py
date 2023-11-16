@@ -219,7 +219,7 @@ if __name__ == '__main__':
             logging_steps=args.logging_steps,
             output_dir='outputs',
             optim=args.optim,
-            use_mps_device=args.use_mps_device == 'False',
+            use_mps_device=args.use_mps_device == False,
             log_level=args.log_level,
             logging_first_step=args.logging_first_step == 'True',
             evaluation_strategy=args.evaluation_strategy,
