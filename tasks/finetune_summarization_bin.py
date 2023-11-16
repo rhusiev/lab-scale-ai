@@ -96,7 +96,7 @@ if __name__ == '__main__':
     #=========================
     # Bin: detect device
     #=========================
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    #device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
   
   
     # Define a data formatter function that wraps the format_data_as_instructions function with the specified arguments
@@ -164,7 +164,7 @@ if __name__ == '__main__':
     model, tokenizer = get_model_and_tokenizer(args.model_id,
                                                quantization_type=args.quantization_type,
                                                gradient_checkpointing=bool(args.gradient_checkpointing),
-                                               device=device)
+                                               device=args.device)
 
     logger.info(f'Loaded Model ID: {args.model_id}')
 
@@ -199,10 +199,10 @@ if __name__ == '__main__':
 
     # Set the format of the data
     train_data = data['train']
-    train_data.set_format(type='torch', device=device)
+    train_data.set_format(type='torch', device=args.device)
 
     validation_data = data['validation']
-    validation_data.set_format(type='torch', device=device)
+    validation_data.set_format(type='torch', device=args.device)
 
     logger.info(f'Loaded Dataset: {args.dataset}')
 
@@ -274,7 +274,7 @@ if __name__ == '__main__':
         model = trainer.model
 
         model.eval()
-        model.to(device)
+        model.to(args.device)
         model.config.use_cache = True
 
         print('Evaluating model on ROUGE, BLEU, and BERTScore...')
