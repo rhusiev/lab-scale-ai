@@ -224,7 +224,7 @@ if __name__ == '__main__':
             logging_first_step=args.logging_first_step == 'True',
             evaluation_strategy=args.evaluation_strategy,
             eval_steps=args.eval_steps,
-            resume_from_checkpoint=args.resume_from_checkpoint == 'True',
+            resume_from_checkpoint=args.resume_from_checkpoint == 'False',
             push_to_hub=args.hub_upload == 'True',
             save_steps=args.save_steps,
             report_to=['wandb'] if args.wandb_logging == 'True' else [],
