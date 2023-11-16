@@ -26,7 +26,7 @@ if __name__ == '__main__':
     parser.add_argument('--resume_from_checkpoint', type=str, default='False', help='Whether to resume from a checkpoint.')
 
     # Device arguments
-    parser.add_argument('--device', type=str, default='auto', help='The device to mount the model on.')
+    parser.add_argument('--device', type=str, default='cuda:0', help='The device to mount the model on.')
     parser.add_argument('--use_mps_device', type=str, default='False', help='Whether to use an MPS device.')
     parser.add_argument('--max_memory', type=str, default='12000MB', help='The maximum memory per GPU, in MB.')
 
