@@ -22,6 +22,10 @@ variety of command line arguments related to data, model quantization & PEFT, lo
 adaptable for tasks other than summarization that can be accomplished using instruction-tuned models. The train_from_recipe.sh file
 is intended to allow for a couple of parameters (model, task, quantization) to be passed in such that other parameters can be automatically selected.
 
+```
+python 
+```
+
 ### Evaluation
 
 The evaluate_summarization.py file contains functions intended for evaluating models on the text summarization task. 
