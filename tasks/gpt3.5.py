@@ -185,7 +185,7 @@ def main():
     if args.shottype == 'zero':
         print('Zero Shot...')
         zeroshot(test_data)
-    elif:
+    elif args.shottype == 'one':
         print('One Shot...')
         oneshot(train_data, test_data)
     else:
