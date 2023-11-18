@@ -88,9 +88,10 @@ def zeroshot(test_data, client):
         gts.append(test_data[i]['section_text'])
         
     results = compute_summarization_metrics(predictions, gts)    
-    with open('gpt3.5-zeroshot-results.json', 'w') as f:
+    with open('zeroshot-results.json', 'w') as f:
         json.dump(results, f)
-    
+    f.close()
+
 def oneshot(train_data, test_data, client):
     #--------------
     # inference
@@ -119,8 +120,9 @@ def oneshot(train_data, test_data, client):
         gts.append(test_data[i]['section_text'])
         
     results = compute_summarization_metrics(predictions, gts)    
-    with open('gpt3.5-oneshot-results.json', 'w') as f:
+    with open('oneshot-results.json', 'w') as f:
         json.dump(results, f)
+    f.close()
         
 def fewshot(train_data, test_data, client):
     #--------------
@@ -154,9 +156,9 @@ def fewshot(train_data, test_data, client):
         gts.append(test_data[i]['section_text'])
         
     results = compute_summarization_metrics(predictions, gts)
-    with open('gpt3.5-fewshot-results.json', 'w') as f:
+    with open('fewshot-results.json', 'w') as f:
         json.dump(results, f)
-        
+    f.close()
 #-----------------------
 # Main Function
 #-----------------------
