@@ -23,18 +23,7 @@ adaptable for tasks other than summarization that can be accomplished using inst
 is intended to allow for a couple of parameters (model, task, quantization) to be passed in such that other parameters can be automatically selected.
 
 ```
-python --finetune_summarization.py \
-  --model_id facebook/opt-125m \
-  --device cuda:0 \
-  --dataset beanham/medsum \
-  --input_col dialogue \
-  --target_col section_text \
-  --train_slice train \
-  --validation_slice validation \
-  --test_slice test \
-  --wandb_name \
-  --wandb_api_var \
-  --max_steps 500
+python --finetune_summarization.py --model_id facebook/opt-125m --dataset beanham/medsum --input_col dialogue --target_col section_text --train_slice train --validation_slice validation --test_slice test --wandb_name --wandb_api_var --max_steps 500
 ```
 
 ### Evaluation
