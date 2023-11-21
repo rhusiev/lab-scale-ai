@@ -1,5 +1,4 @@
 import json
-import torch
 import argparse
 import evaluate
 import numpy as np
@@ -8,7 +7,9 @@ from tqdm import tqdm
 from openai import OpenAI
 from typing import Iterable
 from datasets import load_dataset
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import AutoTokenizer, AutoModelForCausalLM
+import transformers
+import torch
 
 
 def compute_summarization_metrics(predictions: Iterable, 
@@ -66,7 +67,7 @@ def compute_summarization_metrics(predictions: Iterable,
 
     return metric_results
 
-def zeroshot(test_data, model, tokenizer, device):
+def zeroshot(test_data, pipeline):
     
     #--------------
     # inference
@@ -77,15 +78,15 @@ def zeroshot(test_data, model, tokenizer, device):
         
         system = 'Summarize the following conversation\n'
         dialogue = test_data[i]['dialogue']        
-        messages = [
-            {"role": "user", "content": system+dialogue}
-        ]
-        encodeds = tokenizer.apply_chat_template(messages, return_tensors="pt")
-        model_inputs = encodeds.to(device)
-        model.to(device)
-        generated_ids = model.generate(model_inputs, max_new_tokens=512, do_sample=True)
-        decoded = tokenizer.batch_decode(generated_ids)
-        predictions.append(decoded[0])
+        sequences = pipeline(
+            system+dialogue,
+            max_length=512,
+            do_sample=False,
+            top_k=10,
+            num_return_sequences=1,
+            eos_token_id=tokenizer.eos_token_id,
+        )
+        predictions.append(sequences[0]['generated_text'])
         gts.append(test_data[i]['section_text'])
         
     results = compute_summarization_metrics(predictions, gts)    
@@ -93,7 +94,7 @@ def zeroshot(test_data, model, tokenizer, device):
         json.dump(results, f)
     f.close()
 
-def oneshot(train_data, test_data, client):
+def oneshot(train_data, test_data, pipe):
     #--------------
     # inference
     #--------------
@@ -104,18 +105,15 @@ def oneshot(train_data, test_data, client):
         dialogue_example = train_data[0]['dialogue']
         summary_example = train_data[0]['section_text']
         dialogue = test_data[i]['dialogue']
-
-        messages = [
-            {"role": "user", "content": system+dialogue_example},
-            {"role": "assistant", "content": summary_example},
-            {"role": "user", "content": system+dialogue}
-        ]
-        encodeds = tokenizer.apply_chat_template(messages, return_tensors="pt")
-        model_inputs = encodeds.to(device)
-        model.to(device)
-        generated_ids = model.generate(model_inputs, max_new_tokens=512, do_sample=True)
-        decoded = tokenizer.batch_decode(generated_ids)
-        predictions.append(decoded[0])
+        sequences = pipeline(
+            system+dialogue,
+            max_length=512,
+            do_sample=False,
+            top_k=10,
+            num_return_sequences=1,
+            eos_token_id=tokenizer.eos_token_id,
+        )
+        predictions.append(sequences[0]['generated_text'])
         gts.append(test_data[i]['section_text'])
         
     results = compute_summarization_metrics(predictions, gts)    
@@ -123,7 +121,7 @@ def oneshot(train_data, test_data, client):
         json.dump(results, f)
     f.close()
         
-def fewshot(train_data, test_data, client):
+def fewshot(train_data, test_data, pipe):
     #--------------
     # inference
     #--------------
@@ -136,21 +134,16 @@ def fewshot(train_data, test_data, client):
         dialogue_example_2 = train_data[1]['dialogue']
         summary_example_2 = train_data[1]['section_text']
         dialogue = test_data[i]['dialogue']
-        
-        messages = [
-            {"role": "user", "content": system+dialogue_example_1},
-            {"role": "assistant", "content": summary_example_1},
-            {"role": "user", "content": system+dialogue_example_2},
-            {"role": "assistant", "content": summary_example_2},
-            {"role": "user", "content": system+dialogue}            
-        ]
-        encodeds = tokenizer.apply_chat_template(messages, return_tensors="pt")
-        model_inputs = encodeds.to(device)
-        model.to(device)
-        generated_ids = model.generate(model_inputs, max_new_tokens=512, do_sample=True)
-        decoded = tokenizer.batch_decode(generated_ids)
-        predictions.append(decoded[0])
-        gts.append(test_data[i]['section_text'])        
+        sequences = pipeline(
+            system+dialogue,
+            max_length=512,
+            do_sample=False,
+            top_k=10,
+            num_return_sequences=1,
+            eos_token_id=tokenizer.eos_token_id,
+        )
+        predictions.append(sequences[0]['generated_text'])
+        gts.append(test_data[i]['section_text'])      
         
     results = compute_summarization_metrics(predictions, gts)
     with open('fewshot-results.json', 'w') as f:
@@ -180,22 +173,29 @@ def main():
     #-------------------
     # load summarizer
     #-------------------
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = AutoModelForCausalLM.from_pretrained("mistralai/Mistral-7B-Instruct-v0.1")
-    tokenizer = AutoTokenizer.from_pretrained("mistralai/Mistral-7B-Instruct-v0.1")
-    
+    model = "tiiuae/falcon-7b-instruct"
+    tokenizer = AutoTokenizer.from_pretrained(model)
+    pipeline = transformers.pipeline(
+        "text-generation",
+        model=model,
+        tokenizer=tokenizer,
+        torch_dtype=torch.bfloat16,
+        trust_remote_code=True,
+        device_map="auto",
+    )
+        
     #--------------
     # inference
     #--------------
     if args.shottype == 'zero':
         print('Zero Shot...')
-        zeroshot(test_data, model, tokenizer, device)
+        zeroshot(test_data, pipeline)
     elif args.shottype == 'one':
         print('One Shot...')
-        oneshot(train_data, test_data, model, tokenizer, device)
+        oneshot(train_data, test_data, pipeline)
     else:
         print('Few Shot...')
-        fewshot(train_data, test_data, model, tokenizer, device)
+        fewshot(train_data, test_data, pipeline)
     
 if __name__ == "__main__":
     main()
