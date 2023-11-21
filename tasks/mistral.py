@@ -139,7 +139,7 @@ def fewshot(train_data, test_data, client):
         messages = [
             {"role": "user", "content": system+dialogue_example_1},
             {"role": "assistant", "content": summary_example_1},
-            {"role": "user", "content": system+dialogue_example_2}
+            {"role": "user", "content": system+dialogue_example_2},
             {"role": "assistant", "content": summary_example_2},
             {"role": "user", "content": system+dialogue}            
         ]
