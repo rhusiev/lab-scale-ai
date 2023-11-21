@@ -67,7 +67,7 @@ def compute_summarization_metrics(predictions: Iterable,
 
     return metric_results
 
-def zeroshot(test_data, pipeline):
+def zeroshot(test_data, pipeline, tokenizer):
     
     #--------------
     # inference
@@ -189,7 +189,7 @@ def main():
     #--------------
     if args.shottype == 'zero':
         print('Zero Shot...')
-        zeroshot(test_data, pipeline)
+        zeroshot(test_data, pipeline, tokenizer)
     elif args.shottype == 'one':
         print('One Shot...')
         oneshot(train_data, test_data, pipeline)
