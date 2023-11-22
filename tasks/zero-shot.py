@@ -90,7 +90,7 @@ def zeroshot(test_data, pipeline, tokenizer):
         gts.append(test_data[i]['section_text'])
         
     results = compute_summarization_metrics(predictions, gts)    
-    with open('zeroshot-results.json', 'w') as f:
+    with open(f'zeroshot-results.json', 'w') as f:
         json.dump(results, f)
     f.close()
 
@@ -159,6 +159,7 @@ def main():
     # parameters
     #-------------------    
     parser = argparse.ArgumentParser()
+    parser.add_argument('--model', type=str, default='True')
     parser.add_argument('--shottype', type=str, default='True')
     args = parser.parse_args()
     
@@ -173,8 +174,7 @@ def main():
     #-------------------
     # load summarizer
     #-------------------
-    model = "tiiuae/falcon-7b-instruct"
-    tokenizer = AutoTokenizer.from_pretrained(model)
+    tokenizer = AutoTokenizer.from_pretrained(args.model)
     pipeline = transformers.pipeline(
         "text-generation",
         model=model,
