@@ -177,7 +177,7 @@ def main():
     tokenizer = AutoTokenizer.from_pretrained(args.model)
     pipeline = transformers.pipeline(
         "text-generation",
-        model=model,
+        model=args.model,
         tokenizer=tokenizer,
         torch_dtype=torch.bfloat16,
         trust_remote_code=True,
