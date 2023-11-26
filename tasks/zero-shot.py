@@ -82,7 +82,6 @@ def zeroshot(test_data, pipeline, tokenizer):
             system+dialogue,
             max_length=512,
             do_sample=False,
-            top_k=10,
             num_return_sequences=1,
             eos_token_id=tokenizer.eos_token_id,
         )
@@ -111,7 +110,6 @@ def oneshot(train_data, test_data, pipe):
             system+dialogue_example+summary_example+dialogue,
             max_length=512,
             do_sample=False,
-            top_k=10,
             num_return_sequences=1,
             eos_token_id=tokenizer.eos_token_id,
         )
@@ -142,7 +140,6 @@ def fewshot(train_data, test_data, pipe):
             system+dialogue_example_1+summary_example_1+dialogue_example_2+summary_example_2+dialogue,
             max_length=512,
             do_sample=False,
-            top_k=10,
             num_return_sequences=1,
             eos_token_id=tokenizer.eos_token_id,
         )
