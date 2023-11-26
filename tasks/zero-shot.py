@@ -88,11 +88,13 @@ def zeroshot(test_data, pipeline, tokenizer):
         )
         predictions.append(sequences[0]['generated_text'])
         gts.append(test_data[i]['section_text'])
-        
-    results = compute_summarization_metrics(predictions, gts)    
-    with open(f'zeroshot-results.json', 'w') as f:
-        json.dump(results, f)
-    f.close()
+    np.save('zeroshot-predictions.npy', predictions)
+    np.save('zeroshot-gts.npy', gts)
+     
+    #results = compute_summarization_metrics(predictions, gts)    
+    #with open(f'zeroshot-results.json', 'w') as f:
+    #    json.dump(results, f)
+    #f.close()
 
 def oneshot(train_data, test_data, pipe):
     #--------------
