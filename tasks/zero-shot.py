@@ -104,11 +104,11 @@ def oneshot(train_data, test_data, pipe):
     gts = []
     for i in tqdm(range(len(test_data))):
         system = 'Summarize the following conversation\n'
-        dialogue_example = train_data[0]['dialogue']
-        summary_example = train_data[0]['section_text']
-        dialogue = test_data[i]['dialogue']
+        dialogue_example = train_data[0]['dialogue']+'\n'
+        summary_example = train_data[0]['section_text']+'\n'
+        dialogue = test_data[i]['dialogue']   
         sequences = pipeline(
-            system+dialogue,
+            system+\dialogue_example+summary_example+dialogue,
             max_length=512,
             do_sample=False,
             top_k=10,
@@ -117,11 +117,13 @@ def oneshot(train_data, test_data, pipe):
         )
         predictions.append(sequences[0]['generated_text'])
         gts.append(test_data[i]['section_text'])
-        
-    results = compute_summarization_metrics(predictions, gts)    
-    with open('oneshot-results.json', 'w') as f:
-        json.dump(results, f)
-    f.close()
+    np.save('oneshot-predictions.npy', predictions)
+    np.save('oneshot-gts.npy', gts)
+  
+    #results = compute_summarization_metrics(predictions, gts)    
+    #with open('oneshot-results.json', 'w') as f:
+    #    json.dump(results, f)
+    #f.close()
         
 def fewshot(train_data, test_data, pipe):
     #--------------
@@ -137,7 +139,7 @@ def fewshot(train_data, test_data, pipe):
         summary_example_2 = train_data[1]['section_text']
         dialogue = test_data[i]['dialogue']
         sequences = pipeline(
-            system+dialogue,
+            system+\dialogue_example_1+summary_example_1+dialogue_example_2+summary_example_2+dialogue,
             max_length=512,
             do_sample=False,
             top_k=10,
@@ -145,12 +147,14 @@ def fewshot(train_data, test_data, pipe):
             eos_token_id=tokenizer.eos_token_id,
         )
         predictions.append(sequences[0]['generated_text'])
-        gts.append(test_data[i]['section_text'])      
+        gts.append(test_data[i]['section_text'])
+    np.save('fewshot-predictions.npy', predictions)
+    np.save('fewshot-gts.npy', gts)   
         
-    results = compute_summarization_metrics(predictions, gts)
-    with open('fewshot-results.json', 'w') as f:
-        json.dump(results, f)
-    f.close()
+    #results = compute_summarization_metrics(predictions, gts)
+    #with open('fewshot-results.json', 'w') as f:
+    #    json.dump(results, f)
+    #f.close()
     
 #-----------------------
 # Main Function
