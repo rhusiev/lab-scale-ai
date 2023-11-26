@@ -16,6 +16,7 @@ from typing import Mapping
 
 from finetune import format_data_as_instructions, get_model_and_tokenizer, get_lora_model, get_default_trainer, get_dataset_slices
 from evaluate_summarization import evaluate_hf_model
+from evaluate_qanda import evaluate_hf_model_qa
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Fine-tune a summarization model.')
@@ -84,7 +85,8 @@ if __name__ == '__main__':
     parser.add_argument('--eval_steps', type=int, default=25, help='The number of steps between evaluations.')
     parser.add_argument('--eval_on_test', type=str, default='True', help='Whether to evaluate the model on the test set after fine-tuning.')
     parser.add_argument('--compute_summarization_metrics', type=str, default='True', help='Whether to evaluate the model on ROUGE, BLEU, and BERTScore after fine-tuning.')
-    
+    parser.add_argument('--compute_qanda_metrics', type=str, default='False', help='Whether to evaluate the model on QA metrics like F1 and Exact Match (from SQUAD).')
+
     # Hub arguments
     parser.add_argument('--hub_upload', type=str, default='False', help='Whether to upload the model to the hub.')
     parser.add_argument('--hub_save_id', type=str, default='wolferobert3/opt-125m-peft-summarization', help='The name under which the mode will be saved on the hub.')
@@ -289,6 +291,33 @@ if __name__ == '__main__':
         print('Finetuned Model Metrics:')
 
         for k, v in metrics.items():
+            print(f'{k}: {v}')
+    
+    if args.compute_qanda_metrics == 'True':
+
+        model = trainer.model
+
+        model.eval()
+        model.to(args.device)
+        model.config.use_cache = True
+
+        print('Evaluating model on QA Metrics (Exact Match and F1 Score)...')
+
+        qa_metrics = evaluate_hf_model_qa(model, 
+                        tokenizer, 
+                        data['test'], 
+                        question_column=args.input_col,
+                        answer_column=args.target_col,
+                        max_samples=200)
+                        #len(data['test']))
+        
+        logger.info('Completed QA Metrics evaluation')
+        wandb.log(qa_metrics)
+
+        # Print metrics
+        print('Finetuned Model QA Metrics:')
+
+        for k, v in qa_metrics.items():
             print(f'{k}: {v}')
 
     if args.wandb_logging == 'True':
