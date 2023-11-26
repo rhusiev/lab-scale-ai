@@ -183,7 +183,7 @@ def main():
         model=args.model,
         tokenizer=tokenizer,
         torch_dtype=torch.bfloat16,
-        trust_remote_code=True,
+        #trust_remote_code=True,
         device_map="auto",
     )
         
