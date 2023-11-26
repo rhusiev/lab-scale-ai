@@ -90,10 +90,10 @@ def zeroshot(test_data, pipeline, tokenizer):
     np.save('zeroshot-predictions.npy', predictions)
     np.save('zeroshot-gts.npy', gts)
      
-    #results = compute_summarization_metrics(predictions, gts)    
-    #with open(f'zeroshot-results.json', 'w') as f:
-    #    json.dump(results, f)
-    #f.close()
+    results = compute_summarization_metrics(predictions, gts)    
+    with open(f'zeroshot-results.json', 'w') as f:
+        json.dump(results, f)
+    f.close()
 
 def oneshot(train_data, test_data, pipe):
     #--------------
@@ -118,10 +118,10 @@ def oneshot(train_data, test_data, pipe):
     np.save('oneshot-predictions.npy', predictions)
     np.save('oneshot-gts.npy', gts)
   
-    #results = compute_summarization_metrics(predictions, gts)    
-    #with open('oneshot-results.json', 'w') as f:
-    #    json.dump(results, f)
-    #f.close()
+    results = compute_summarization_metrics(predictions, gts)    
+    with open('oneshot-results.json', 'w') as f:
+        json.dump(results, f)
+    f.close()
         
 def fewshot(train_data, test_data, pipe):
     #--------------
@@ -148,10 +148,10 @@ def fewshot(train_data, test_data, pipe):
     np.save('fewshot-predictions.npy', predictions)
     np.save('fewshot-gts.npy', gts)   
         
-    #results = compute_summarization_metrics(predictions, gts)
-    #with open('fewshot-results.json', 'w') as f:
-    #    json.dump(results, f)
-    #f.close()
+    results = compute_summarization_metrics(predictions, gts)
+    with open('fewshot-results.json', 'w') as f:
+        json.dump(results, f)
+    f.close()
     
 #-----------------------
 # Main Function
