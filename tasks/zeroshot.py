@@ -40,7 +40,7 @@ def main():
     #-------------------
     print('Getting model and tokenizer...')
     model, tokenizer = get_model_and_tokenizer(args.model,
-                                               gradient_checkpointing=False
+                                               gradient_checkpointing=False,
                                                device=args.device)
     
     #--------------
