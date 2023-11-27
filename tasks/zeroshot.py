@@ -39,7 +39,9 @@ def main():
     # load summarizer
     #-------------------
     print('Getting model and tokenizer...')
-    model, tokenizer = get_model_and_tokenizer(args.model,gradient_checkpointing=False)
+    model, tokenizer = get_model_and_tokenizer(args.model,
+                                               gradient_checkpointing=False
+                                               device=args.device)
     
     #--------------
     # inference
