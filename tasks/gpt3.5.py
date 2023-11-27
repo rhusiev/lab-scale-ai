@@ -72,8 +72,8 @@ def zeroshot(test_data, client):
     gts = []
     for i in tqdm(range(len(test_data))):
         
-        system = 'Summarize the following conversation\n'
-        dialogue = test_data[i]['dialogue'] 
+        system = 'Answer the following questions:\n'
+        dialogue = test_data[i]['Question'] 
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
@@ -85,7 +85,7 @@ def zeroshot(test_data, client):
             top_p=1
         )
         predictions.append(response.choices[0].message.content)
-        gts.append(test_data[i]['section_text'])
+        gts.append(test_data[i]['Sentence'])
         
     results = compute_summarization_metrics(predictions, gts)    
     with open('zeroshot-results.json', 'w') as f:
@@ -168,6 +168,7 @@ def main():
     # parameters
     #-------------------    
     parser = argparse.ArgumentParser()
+    parser.add_argument('--data', type=str, default='beanham/wikiqa')  
     parser.add_argument('--shottype', type=str, default='True')
     parser.add_argument('--key', type=str, default='openai-key', help='Name of the HuggingFace API token variable name.')
     args = parser.parse_args()
@@ -175,7 +176,6 @@ def main():
     #-------------------
     # load data
     #-------------------
-    dataset='beanham/medsum'
     train_data = load_dataset(dataset, split='train')
     validation_data = load_dataset(dataset, split='validation')
     test_data = load_dataset(dataset, split='test')
