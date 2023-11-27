@@ -168,10 +168,11 @@ def main():
     # parameters
     #-------------------    
     parser = argparse.ArgumentParser()
-    parser.add_argument('--data', type=str, default='beanham/wikiqa')  
+    parser.add_argument('--dataset', type=str, default='beanham/wikiqa')  
     parser.add_argument('--shottype', type=str, default='True')
     parser.add_argument('--key', type=str, default='openai-key', help='Name of the HuggingFace API token variable name.')
     args = parser.parse_args()
+    dataset = args.dataset
     
     #-------------------
     # load data
