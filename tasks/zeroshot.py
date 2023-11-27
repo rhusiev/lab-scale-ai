@@ -24,6 +24,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--model', type=str, default='True')
     parser.add_argument('--dataset', type=str, default='True')
+    parser.add_argument('--device', type=str, default='cuda:0', help='The device to mount the model on.')
     args = parser.parse_args()
   
     #-------------------
@@ -44,6 +45,8 @@ def main():
     # inference
     #--------------
     model.eval()
+    model.to(args.device)
+    
     print('Evaluating model on ROUGE, BLEU, and BERTScore...')
     metrics = evaluate_hf_model(model, 
                                 tokenizer, 
@@ -51,7 +54,8 @@ def main():
                                 input_column='Question',
                                 target_column='Sentence',
                                 max_samples=len(test_data),
-                                start_prompt='Answer the following question:')
+                                start_prompt='### Answer the following question: ',
+                                end_prompt='### Begin Answering: ')
     for k, v in metrics.items():
         print(f'{k}: {v}')
       
