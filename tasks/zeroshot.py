@@ -67,92 +67,6 @@ def compute_summarization_metrics(predictions: Iterable,
         metric_results['bertscore'] = None
 
     return metric_results
-
-def zeroshot(test_data, pipeline, tokenizer):
-    
-    #--------------
-    # inference
-    #--------------
-    predictions = []
-    gts = []
-    for i in tqdm(range(len(test_data))):
-        
-        system = 'Summarize the following conversation\n'
-        dialogue = test_data[i]['dialogue']        
-        sequences = pipeline(
-            system+dialogue,
-            max_length=2048,
-            do_sample=False,
-            num_return_sequences=1,
-            eos_token_id=tokenizer.eos_token_id,
-        )
-        predictions.append(sequences[0]['generated_text'])
-        gts.append(test_data[i]['section_text'])
-    np.save('zeroshot-predictions.npy', predictions)
-    np.save('zeroshot-gts.npy', gts)
-     
-    results = compute_summarization_metrics(predictions, gts)    
-    with open(f'zeroshot-results.json', 'w') as f:
-        json.dump(results, f)
-    f.close()
-
-def oneshot(train_data, test_data, pipe):
-    #--------------
-    # inference
-    #--------------
-    predictions = []
-    gts = []
-    for i in tqdm(range(len(test_data))):
-        system = 'Summarize the following conversation\n'
-        dialogue_example = train_data[0]['dialogue']+'\n'
-        summary_example = train_data[0]['section_text']+'\n'
-        dialogue = test_data[i]['dialogue']   
-        sequences = pipeline(
-            system+dialogue_example+summary_example+dialogue,
-            max_length=2048,
-            do_sample=False,
-            num_return_sequences=1,
-            eos_token_id=tokenizer.eos_token_id,
-        )
-        predictions.append(sequences[0]['generated_text'])
-        gts.append(test_data[i]['section_text'])
-    np.save('oneshot-predictions.npy', predictions)
-    np.save('oneshot-gts.npy', gts)
-  
-    results = compute_summarization_metrics(predictions, gts)    
-    with open('oneshot-results.json', 'w') as f:
-        json.dump(results, f)
-    f.close()
-        
-def fewshot(train_data, test_data, pipe):
-    #--------------
-    # inference
-    #--------------
-    predictions = []
-    gts = []
-    for i in tqdm(range(len(test_data))):
-        system = 'Summarize the following conversation\n'
-        dialogue_example_1 = train_data[0]['dialogue']+'\n'
-        summary_example_1 = train_data[0]['section_text']+'\n'
-        dialogue_example_2 = train_data[1]['dialogue']+'\n'
-        summary_example_2 = train_data[1]['section_text']+'\n'
-        dialogue = test_data[i]['dialogue']
-        sequences = pipeline(
-            system+dialogue_example_1+summary_example_1+dialogue_example_2+summary_example_2+dialogue,
-            max_length=2048,
-            do_sample=False,
-            num_return_sequences=1,
-            eos_token_id=tokenizer.eos_token_id,
-        )
-        predictions.append(sequences[0]['generated_text'])
-        gts.append(test_data[i]['section_text'])
-    np.save('fewshot-predictions.npy', predictions)
-    np.save('fewshot-gts.npy', gts)   
-        
-    results = compute_summarization_metrics(predictions, gts)
-    with open('fewshot-results.json', 'w') as f:
-        json.dump(results, f)
-    f.close()
     
 #-----------------------
 # Main Function
@@ -185,15 +99,15 @@ def main():
     #--------------
     # inference
     #--------------
-    if args.shottype == 'zero':
-        print('Zero Shot...')
-        zeroshot(test_data, pipeline, tokenizer)
-    elif args.shottype == 'one':
-        print('One Shot...')
-        oneshot(train_data, test_data, pipeline)
-    else:
-        print('Few Shot...')
-        fewshot(train_data, test_data, pipeline)
+    model.eval()
+    print('Evaluating model on ROUGE, BLEU, and BERTScore...')
+    metrics = evaluate_hf_model(model, 
+                                tokenizer, 
+                                test_data, 
+                                input_column='Question',
+                                target_column='Sentence',
+                                max_samples=len(test_data),
+                                start_prompt='Answer the following question:')
     
 if __name__ == "__main__":
     main()
