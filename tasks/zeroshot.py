@@ -8,6 +8,7 @@ from openai import OpenAI
 from typing import Iterable
 from datasets import load_dataset
 from transformers import AutoTokenizer, AutoModelForCausalLM
+from finetune import get_model_and_tokenizer
 import transformers
 import torch
 
@@ -163,30 +164,24 @@ def main():
     #-------------------    
     parser = argparse.ArgumentParser()
     parser.add_argument('--model', type=str, default='True')
+    parser.add_argument('--dataset', type=str, default='True')
     parser.add_argument('--shottype', type=str, default='True')
     args = parser.parse_args()
-    
+  
     #-------------------
     # load data
     #-------------------
-    dataset='beanham/medsum'
-    train_data = load_dataset(dataset, split='train')
-    validation_data = load_dataset(dataset, split='validation')
-    test_data = load_dataset(dataset, split='test')
+    print('Getting data...')
+    train_data = load_dataset(args.dataset, split='train')
+    validation_data = load_dataset(args.dataset, split='validation')
+    test_data = load_dataset(args.dataset, split='test')
     
     #-------------------
     # load summarizer
     #-------------------
-    tokenizer = AutoTokenizer.from_pretrained(args.model)
-    pipeline = transformers.pipeline(
-        "text-generation",
-        model=args.model,
-        tokenizer=tokenizer,
-        torch_dtype=torch.bfloat16,
-        #trust_remote_code=True,
-        device_map="auto",
-    )
-        
+    print('Getting model and tokenizer...')
+    model, tokenizer = get_model_and_tokenizer(args.model,gradient_checkpointing=False)
+    
     #--------------
     # inference
     #--------------
