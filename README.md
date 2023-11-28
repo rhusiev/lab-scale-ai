@@ -24,7 +24,8 @@ is intended to allow for a couple of parameters (model, task, quantization) to b
 
 ```
 python finetune_summarization.py
- --model_id facebook/opt-125m
+ --model_id tiiuae/falcon-7b-instruct
+ --wandb_name falcon-7b-instruct
  --dataset beanham/medsum
  --input_col dialogue
  --target_col section_text
@@ -32,8 +33,9 @@ python finetune_summarization.py
  --validation_slice validation
  --test_slice test
  --wandb_logging True
- --wandb_name name
- --max_steps 500
+ --max_steps 250
+ --start_prompt "### Summarize the following: "
+ --end_prompt "### Begin summary: "
 ```
 
 ### Evaluation

@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+
+import numpy as np
 import torch
 import bitsandbytes as bnb
 import logging
@@ -275,14 +278,14 @@ if __name__ == '__main__':
 
         print('Evaluating model on ROUGE, BLEU, and BERTScore...')
 
-        metrics = evaluate_hf_model(model, 
-                        tokenizer, 
-                        data['test'], 
-                        input_column=args.input_col,
-                        target_column=args.target_col,
-                        max_samples=len(data['test']),
-                        start_prompt=args.start_prompt,
-                        end_prompt=args.end_prompt,)
+        model_outputs, metrics = evaluate_hf_model(model,
+                                    tokenizer,
+                                    data['test'],
+                                    input_column=args.input_col,
+                                    target_column=args.target_col,
+                                    max_samples=len(data['test']),
+                                    start_prompt=args.start_prompt,
+                                    end_prompt=args.end_prompt,)
         
         logger.info(f'Completed ROUGE, BLEU, and BERTScore evaluation')
         wandb.log(metrics)
@@ -292,7 +295,10 @@ if __name__ == '__main__':
 
         for k, v in metrics.items():
             print(f'{k}: {v}')
-    
+
+        # save model outputs
+        np.save(f"{args.model_id.split('/')[1]}_finetuned_model_outputs.npy", model_outputs)
+
     if args.compute_qanda_metrics == 'True':
 
         model = trainer.model
