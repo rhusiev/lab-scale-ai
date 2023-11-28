@@ -48,7 +48,7 @@ def main():
     # inference
     #--------------
     model.eval()
-    model.to(args.device)
+    #model.to(args.device)
     
     print('Evaluating model on ROUGE, BLEU, and BERTScore...')
     model_outputs, metrics = evaluate_hf_model(model, 
