@@ -34,8 +34,8 @@ python finetune_summarization.py
  --test_slice test
  --wandb_logging True
  --max_steps 250
- --start_prompt ### Summarize the following :
- --end_prompt ### Begin summary :
+ --start_prompt "### Summarize the following: "
+ --end_prompt "### Begin summary: "
 ```
 
 ### Evaluation
