@@ -295,7 +295,7 @@ if __name__ == '__main__':
             print(f'{k}: {v}')
 
         # save model outputs
-        np.save(f"{args.model_id}_finetuned_model_outputs.npy", model_outputs)
+        np.save(f"{args.model_id.split('/')[1]}_finetuned_model_outputs.npy", model_outputs)
         
     if args.compute_qanda_metrics == 'True':
 
