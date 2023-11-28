@@ -72,7 +72,7 @@ def zeroshot(test_data, client):
     gts = []
     for i in tqdm(range(len(test_data))):
         
-        system = 'Answer the following questions:\n'
+        system = 'Answer the following question: \n'
         dialogue = test_data[i]['Question'] 
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
