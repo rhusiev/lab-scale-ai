@@ -22,7 +22,7 @@ def main():
     # parameters
     #-------------------    
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model', type=str, default='True')
+    parser.add_argument('--model_id', type=str, default='True')
     parser.add_argument('--dataset', type=str, default='True')
     parser.add_argument('--device', type=str, default='cuda:0', help='The device to mount the model on.')
     args = parser.parse_args()
@@ -39,7 +39,7 @@ def main():
     # load summarizer
     #-------------------
     print('Getting model and tokenizer...')
-    model, tokenizer = get_model_and_tokenizer(args.model,
+    model, tokenizer = get_model_and_tokenizer(args.model_id,
                                                gradient_checkpointing=False,
                                                device=args.device)
     
@@ -60,6 +60,8 @@ def main():
                                 end_prompt='### Begin Answering: ')
     for k, v in metrics.items():
         print(f'{k}: {v}')
-      
+        
+    np.save(f"{args.model_id}_pretrained_model_outputs.npy", model_outputs)
+    
 if __name__ == "__main__":
     main()
