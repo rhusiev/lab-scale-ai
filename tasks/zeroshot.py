@@ -50,7 +50,7 @@ def main():
     model.to(args.device)
     
     print('Evaluating model on ROUGE, BLEU, and BERTScore...')
-    metrics = evaluate_hf_model(model, 
+    model_outputs, metrics = evaluate_hf_model(model, 
                                 tokenizer, 
                                 test_data, 
                                 input_column='Question',
