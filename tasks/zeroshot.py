@@ -62,7 +62,7 @@ def main():
     for k, v in metrics.items():
         print(f'{k}: {v}')
         
-    np.save(f"{args.model_id}_pretrained_model_outputs.npy", model_outputs)
+    np.save(f"{args.model_id.split('/')[1]}_pretrained_model_outputs.npy", model_outputs)
     
 if __name__ == "__main__":
     main()
