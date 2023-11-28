@@ -23,7 +23,11 @@ def main():
     #-------------------    
     parser = argparse.ArgumentParser()
     parser.add_argument('--model_id', type=str, default='True')
-    parser.add_argument('--dataset', type=str, default='True')
+    parser.add_argument('--dataset', type=str, default='beanham/wikiqa')
+    parser.add_argument('--input_column', type=str, default='Question')
+    parser.add_argument('--target_column', type=str, default='Sentence')
+    parser.add_argument('--start_prompt', type=str, default='### Answer the following question: ')
+    parser.add_argument('--end_prompt', type=str, default='### Begin answering: ')
     parser.add_argument('--device', type=str, default='cuda:0', help='The device to mount the model on.')
     args = parser.parse_args()
   
@@ -54,11 +58,11 @@ def main():
     model_outputs, metrics = evaluate_hf_model(model, 
                                 tokenizer, 
                                 test_data, 
-                                input_column='Question',
-                                target_column='Sentence',
+                                input_column=args.input_column,
+                                target_column=args.target_column,
                                 max_samples=len(test_data),
-                                start_prompt='### Answer the following question: ',
-                                end_prompt='### Begin Answering: ')
+                                start_prompt=args.start_prompt,
+                                end_prompt=args.end_prompt)
     for k, v in metrics.items():
         print(f'{k}: {v}')
         
