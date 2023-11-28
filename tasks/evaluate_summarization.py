@@ -119,7 +119,7 @@ def evaluate_hf_model(model: AutoModelForCausalLM,
                                             bleu=bleu, 
                                             bertscore=bertscore)
     
-    return metrics
+    return model_outputs, metrics
 
 def evaluate_openai_model(bot: DialogueBot,
                           data: Iterable, 
