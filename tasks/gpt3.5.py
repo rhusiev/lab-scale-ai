@@ -86,7 +86,8 @@ def zeroshot(test_data, client):
         )
         predictions.append(response.choices[0].message.content)
         gts.append(test_data[i]['Sentence'])
-        
+
+    np.save('gpt_zeroshot_outputs.npy', predictions)
     results = compute_summarization_metrics(predictions, gts)    
     with open('zeroshot-results.json', 'w') as f:
         json.dump(results, f)
