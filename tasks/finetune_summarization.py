@@ -18,6 +18,7 @@ from typing import Mapping
 from finetune import format_data_as_instructions, get_model_and_tokenizer, get_lora_model, get_default_trainer, get_dataset_slices
 from evaluate_summarization import evaluate_hf_model
 from evaluate_qanda import evaluate_hf_model_qa
+from evaluate_em import evaluate_hf_model_em
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Fine-tune a summarization model.')
@@ -87,6 +88,7 @@ if __name__ == '__main__':
     parser.add_argument('--eval_on_test', type=str, default='True', help='Whether to evaluate the model on the test set after fine-tuning.')
     parser.add_argument('--compute_summarization_metrics', type=str, default='True', help='Whether to evaluate the model on ROUGE, BLEU, and BERTScore after fine-tuning.')
     parser.add_argument('--compute_qanda_metrics', type=str, default='False', help='Whether to evaluate the model on QA metrics like F1 and Exact Match (from SQUAD).')
+    parser.add_argument('--compute_em_metrics', type=str, default='False', help='Whether to evaluate the model on Accuracy, Precision, Recall, and F1.')
 
     # Hub arguments
     parser.add_argument('--hub_upload', type=str, default='False', help='Whether to upload the model to the hub.')
@@ -276,9 +278,9 @@ if __name__ == '__main__':
 
         print('Evaluating model on ROUGE, BLEU, and BERTScore...')
 
-        model_outputs, metrics = evaluate_hf_model(model, 
-                                    tokenizer, 
-                                    data['test'], 
+        model_outputs, metrics = evaluate_hf_model(model,
+                                    tokenizer,
+                                    data['test'],
                                     input_column=args.input_col,
                                     target_column=args.target_col,
                                     max_samples=len(data['test']),
@@ -296,7 +298,7 @@ if __name__ == '__main__':
 
         # save model outputs
         np.save(f"{args.model_id.split('/')[1]}_finetuned_model_outputs.npy", model_outputs)
-        
+
     if args.compute_qanda_metrics == 'True':
 
         model = trainer.model
@@ -322,6 +324,35 @@ if __name__ == '__main__':
         print('Finetuned Model QA Metrics:')
 
         for k, v in qa_metrics.items():
+            print(f'{k}: {v}')
+
+    if args.compute_em_metrics == 'True':
+
+        model = trainer.model
+
+        model.eval()
+        model.to(args.device)
+        model.config.use_cache = True
+
+        print('Evaluating model on EM Metrics (F1, Precision, Accuracy, Recall)...')
+
+        em_metrics = evaluate_hf_model_em(model,
+                                          tokenizer,
+                                          data['test'],
+                                          input_column=args.input_col,
+                                          target_column=args.target_col,
+                                          max_samples=200,
+                                          start_prompt=args.start_prompt,
+                                          end_prompt=args.end_prompt,)
+        # len(data['test']))
+
+        logger.info('Completed EM Metrics evaluation')
+        wandb.log(em_metrics)
+
+        # Print metrics
+        print('Finetuned Model EM Metrics:')
+
+        for k, v in em_metrics.items():
             print(f'{k}: {v}')
 
     if args.wandb_logging == 'True':
