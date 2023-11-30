@@ -9,6 +9,7 @@ numpy
 openai
 peft
 rouge-score
+scikit-learn
 scipy
 torch
 transformers

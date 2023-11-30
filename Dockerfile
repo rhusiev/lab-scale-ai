@@ -25,12 +25,12 @@ RUN ln -sf /usr/bin/python3.11 /usr/bin/python3 \
 # Copy the current directory contents into the image
 COPY . /app
 
-# Set the working directory to /app
-WORKDIR /app
+# Set the working directory
+WORKDIR /
 
 # Install all requirements
 RUN pip install -r /app/requirements.txt
 
-CMD ["python", "app/tasks/finetune_summarization.py"]
+CMD ["/bin/bash", "/app/tasks/fact-checking.sh"]
 
 EXPOSE 80
