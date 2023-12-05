@@ -21,16 +21,25 @@ class ChatBot:
         self.system_prompt = [{'role': 'system', 'content': system_prompt}]
 
     def generate(self, 
-                 messages: Iterable) -> str:
+                 messages: Iterable,
+                 new_api: bool=True) -> str:
         """
         Query the OpenAI Chat API to generate a response to the user's input.
         """
 
-        # Generate the bot's response
-        output = openai.ChatCompletion.create(
-        model=self.model,
-        messages=messages,
-        )['choices'][0]['message']['content']
+        if new_api:
+            completion = openai.chat.completions.create(
+                model=self.model,
+                messages=messages,
+            )
+            output = completion.choices[0].message.content
+
+        else:
+            # Generate the bot's response
+            output = openai.ChatCompletion.create(
+                model=self.model,
+                messages=messages,
+            )['choices'][0]['message']['content']
 
         return output
 
