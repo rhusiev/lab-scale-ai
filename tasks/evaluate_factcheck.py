@@ -5,7 +5,8 @@ import json
 import argparse
 import torch
 import wandb
-import time
+import pickle as pkl
+import os
 
 import numpy as np
 import pandas as pd
@@ -160,28 +161,45 @@ def evaluate_openai_classifications(bot: DialogueBot,
                           end_prompt: str='\n Begin summary:',
                           save_output_dir: str=None,
                           run_name: str='',
-                          delay: int=0,
-                          remove_stop_tokens: Iterable=None) -> dict:
+                          remove_stop_tokens: Iterable=None,
+                          intermediate_outputs_dir: str=None) -> dict:
     """
     Evaluate an OpenAI model on a dataset using three classification metrics.
     """
 
     model_outputs = []
+    intermediate_idx = 0
+
+    # Load the intermediate outputs - all pickles
+    files = [i for i in os.listdir(intermediate_outputs_dir) if i.endswith('.pkl')]
+
+    if files:
+
+        with open(os.path.join(intermediate_outputs_dir, files[0]), 'rb') as f:
+            model_outputs.extend(pkl.load(f))
+
+    # If no intermediate outputs, start from the beginning; otherwise, start from the last index
+    start_idx = len(model_outputs)
 
     if not max_samples:
         max_samples = len(data)
+
+    # Create progress bar
+    pbar = tqdm(total=max_samples, desc='Evaluating OpenAI model')
+    pbar.update(start_idx)
     
     # Iterate over the test set
-    for idx in tqdm(range(max_samples), desc='Evaluating OpenAI model'):
-
-        # Add a delay to avoid exceeding the OpenAI API rate limit
-        time.sleep(delay)
+    for idx in range(start_idx, max_samples):
 
         # Create the input string, adding the start and end prompts
         input = start_prompt + data[idx][input_column] + end_prompt
         
         # Get the model's response, omitting the system and user prompts
-        output = bot.return_bot_response(input)
+        try:
+            output = bot.return_bot_response(input)
+        except:
+            pkl.dump(model_outputs, open(os.path.join(intermediate_outputs_dir, f'intermediate_outputs.pkl'), 'wb'))
+            raise ValueError('OpenAI API error')
 
         # Remove the stop tokens if specified
         if remove_stop_tokens is not None:
@@ -190,6 +208,9 @@ def evaluate_openai_classifications(bot: DialogueBot,
 
         model_outputs.append(output.strip())
     
+        # Update the progress bar
+        pbar.update(1)
+
     # Compute the classification metrics, comparing the model's responses to the target labels    
     metrics = compute_classification_metrics(model_outputs, 
                                             data[target_column][:len(model_outputs)])
@@ -212,7 +233,6 @@ if __name__ == '__main__':
     parser.add_argument('--model_type', type=str, help='The type of model to evaluate (Huggingface or OpenAI)', default='hf')
     parser.add_argument('--hf_model_id', type=str, help='The Huggingface model to evaluate', default='mistralai/Mistral-7B-Instruct-v0.1')
     parser.add_argument('--oai_model_id', type=str, help='The OpenAI model ID to use in the results file', default='gpt-3.5-turbo')
-    parser.add_argument('--rate_limit_delay', type=int, help='Delay in seconds to avoid exceeding rate limit for the OpenAI API', default=1)
 
     # Dataset arguments
     parser.add_argument('--dataset', type=str, help='The dataset to evaluate on', default='amandakonet/climate_fever_adopted')
@@ -256,9 +276,10 @@ if __name__ == '__main__':
     parser.add_argument('--max_new_tokens', type=int, help='The maximum number of new tokens to generate', default=10)
 
     # Environment and reproducibility arguments
-    parser.add_argument('--device', type=str, help='The device to use for inference', default='cpu')
+    parser.add_argument('--device', type=str, help='The device to use for inference', default='cuda:0')
     parser.add_argument('--seed', type=int, help='The random seed to use', default=42)
     parser.add_argument('--results_dir', type=str, help='The directory to save the results to', default='results')
+    parser.add_argument('--intermediate_outputs_dir', type=str, help='The directory to save the intermediate outputs to', default='intermediate_outputs')
     parser.add_argument('--run_name', type=str, default='fact_checking_eval', help='The name of the project, for logging.')
 
     # W&B logging arguments
@@ -271,6 +292,9 @@ if __name__ == '__main__':
 
     # Set the random seed for reproducibility
     torch.manual_seed(args.seed)
+
+    # Update the run name
+    args.run_name = f'{args.run_name}_{args.shots}-shot'
 
     # Initialize W&B
     if args.wandb_logging == 'True':
@@ -306,9 +330,6 @@ if __name__ == '__main__':
     if args.remove_stop_tokens:
         args.remove_stop_tokens = args.remove_stop_tokens.split('+')
     
-    # Update the run name
-    args.run_name = f'{args.run_name}_{args.shots}-shot'
-
     # Load the test split of the dataset
     print('Loading dataset: ', args.dataset)
 
@@ -376,6 +397,12 @@ if __name__ == '__main__':
     # OpenAI model
     elif args.model_type == 'openai':
 
+        args.intermediate_outputs_dir = f'{args.intermediate_outputs_dir}_{args.shots}-shot'
+
+        # Create intermediate outputs directory
+        if not path.exists(args.intermediate_outputs_dir):
+            makedirs(args.intermediate_outputs_dir)
+
         # Evaluate the OpenAI model
         print('Evaluating OpenAI model: ', args.oai_model_id)
 
@@ -389,8 +416,8 @@ if __name__ == '__main__':
                                         args.end_prompt,
                                         args.results_dir,
                                         args.run_name,
-                                        args.rate_limit_delay,
-                                        args.remove_stop_tokens)
+                                        args.remove_stop_tokens,
+                                        args.intermediate_outputs_dir)
 
     else:
         raise ValueError('Invalid model type: ', args.model_type)

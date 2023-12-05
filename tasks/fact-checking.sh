@@ -7,6 +7,7 @@ do
       m ) modelID="$OPTARG" ;;
       t ) taskID="$OPTARG" ;;
       s ) shots="$OPTARG" ;;
+      e ) conda_env="$OPTARG" ;;
    esac
 done
 
@@ -23,9 +24,184 @@ then
    shots=0
 fi
 
+# Check if conda environment is specified and activate it
+if [ $conda_env ]; then
+    echo "Activating conda environment"
+    eval "$(conda shell.bash hook)"
+    conda activate $conda_env
+fi
+
 echo $modelID
 echo $taskID
 echo $shots
+
+if [ "$modelID" = "gpt-3-5" ] && [ "$taskID" = "all" ]; then
+
+    while [ ! -f /results/gpt-3-5_factcheck_eval_0-shot_metrics.json ]
+    do
+        python evaluate_factcheck.py \
+            --model_type openai \
+            --oai_model_id gpt-3.5-turbo \
+            --use_model_prompt_defaults openai \
+            --results_dir results \
+            --run_name gpt-3-5_factcheck_eval \
+            --wandb_name gpt-3-5_factcheck_eval \
+            --shots 0
+        echo "sleeping"
+        sleep 300
+    done
+
+    while [ ! -f /results/gpt-3-5_factcheck_eval_1-shot_metrics.json ]
+    do
+        python evaluate_factcheck.py \
+            --model_type openai \
+            --oai_model_id gpt-3.5-turbo \
+            --use_model_prompt_defaults openai \
+            --results_dir results \
+            --run_name gpt-3-5_factcheck_eval \
+            --wandb_name gpt-3-5_factcheck_eval \
+            --shots 1
+        echo "sleeping"
+        sleep 300
+    done
+
+    while [ ! -f /results/gpt-3-5_factcheck_eval_2-shot_metrics.json ]
+    do
+        python evaluate_factcheck.py \
+            --model_type openai \
+            --oai_model_id gpt-3.5-turbo \
+            --use_model_prompt_defaults openai \
+            --results_dir results \
+            --run_name gpt-3-5_factcheck_eval \
+            --wandb_name gpt-3-5_factcheck_eval \
+            --shots 2
+        echo "sleeping"
+        sleep 300
+    done
+
+    while [ ! -f /results/gpt-3-5_factcheck_eval_3-shot_metrics.json ]
+    do
+        python evaluate_factcheck.py \
+            --model_type openai \
+            --oai_model_id gpt-3.5-turbo \
+            --use_model_prompt_defaults openai \
+            --results_dir results \
+            --run_name gpt-3-5_factcheck_eval \
+            --wandb_name gpt-3-5_factcheck_eval \
+            --shots 3
+        echo "sleeping"
+        sleep 300
+    done
+
+fi
+
+if [ "$modelID" = "gpt-4" ] && [ "$taskID" = "all" ]; then
+
+    while [ ! -f /results/gpt-4_factcheck_eval_0-shot_metrics.json ]
+    do
+        python evaluate_factcheck.py \
+            --model_type openai \
+            --oai_model_id gpt-4 \
+            --use_model_prompt_defaults openai \
+            --results_dir results \
+            --run_name gpt-4_factcheck_eval \
+            --wandb_name gpt-4_factcheck_eval \
+            --intermediate_outputs_dir gpt-4_factcheck_intermediate \
+            --shots 0
+        sleep 300
+    done
+
+    while [ ! -f /results/gpt-4_factcheck_eval_1-shot_metrics.json ]
+    do
+        python evaluate_factcheck.py \
+            --model_type openai \
+            --oai_model_id gpt-4 \
+            --use_model_prompt_defaults openai \
+            --results_dir results \
+            --run_name gpt-4_factcheck_eval \
+            --wandb_name gpt-4_factcheck_eval \
+            --intermediate_outputs_dir gpt-4_factcheck_intermediate \
+            --shots 1
+        sleep 300
+    done
+
+    while [ ! -f /results/gpt-4_factcheck_eval_2-shot_metrics.json ]
+    do
+        python evaluate_factcheck.py \
+            --model_type openai \
+            --oai_model_id gpt-4 \
+            --use_model_prompt_defaults openai \
+            --results_dir results \
+            --run_name gpt-4_factcheck_eval \
+            --wandb_name gpt-4_factcheck_eval \
+            --intermediate_outputs_dir gpt-4_factcheck_intermediate \
+            --shots 2
+        sleep 300
+    done
+
+    while [ ! -f /results/gpt-4_factcheck_eval_3-shot_metrics.json ]
+    do
+        python evaluate_factcheck.py \
+            --model_type openai \
+            --oai_model_id gpt-4 \
+            --use_model_prompt_defaults openai \
+            --results_dir results \
+            --run_name gpt-4_factcheck_eval \
+            --wandb_name gpt-4_factcheck_eval \
+            --intermediate_outputs_dir gpt-4_factcheck_intermediate \
+            --shots 3
+        sleep 300
+    done
+
+fi
+
+if [ "$modelID" = "gpt-finetuned" ]; then
+    python evaluate_factcheck.py \
+        --model_type openai \
+        --oai_model_id ft:gpt-3.5-turbo-0613:personal::8RIEL9dk \
+        --use_model_prompt_defaults openai \
+        --results_dir results \
+        --run_name gpt-finetuned_factcheck_eval \
+        --wandb_name gpt-finetuned_factcheck_eval \
+        --system_prompt "You are a helpful assistant specializing in fact-checking." \
+        --intermediate_outputs_dir gpt-finetuned_factcheck_intermediate \
+        --shots $shots
+fi
+
+if [ "$modelID" = "gpt-3-5" ]; then
+    python evaluate_factcheck.py \
+        --model_type openai \
+        --oai_model_id gpt-3.5-turbo \
+        --use_model_prompt_defaults openai \
+        --results_dir results \
+        --run_name gpt-3-5_factcheck_eval \
+        --wandb_name gpt-3-5_factcheck_eval \
+        --shots $shots
+fi
+
+if [ "$modelID" = "gpt-4" ]; then
+    python evaluate_factcheck.py \
+        --model_type openai \
+        --oai_model_id gpt-4 \
+        --use_model_prompt_defaults openai \
+        --results_dir results \
+        --run_name gpt-4_factcheck_eval \
+        --wandb_name gpt-4_factcheck_eval \
+        --intermediate_outputs_dir gpt-4_factcheck_intermediate \
+        --shots $shots
+fi
+
+if [ "$modelID" = "gpt-4-turbo" ]; then
+    python evaluate_factcheck.py \
+        --model_type openai \
+        --oai_model_id gpt-4-1106-preview \
+        --use_model_prompt_defaults openai \
+        --results_dir results \
+        --run_name gpt-4-turbo_factcheck_eval \
+        --wandb_name gpt-4-turbo_factcheck_eval \
+        --intermediate_outputs_dir gpt-4-turbo_factcheck_intermediate \
+        --shots $shots
+fi
 
 # Run fact-checking fine-tuning depending on the model
 if [ "$modelID" = "mistral" ] && [ "$taskID" = "finetune" ]; then
