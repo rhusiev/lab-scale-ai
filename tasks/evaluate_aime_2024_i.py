@@ -182,6 +182,11 @@ The question is:
         if remove_suffix is not None:
             decoded = decoded.replace(remove_suffix, "")
 
+        print(f"Question: {question}")
+        print(f"Answer: {decoded}")
+        print(f"Ground Truth: {ground_truth}")
+        print()
+
         exact_match.append(compute_exact(decoded, ground_truth))
 
     return {"exact_match": np.mean(exact_match)}
