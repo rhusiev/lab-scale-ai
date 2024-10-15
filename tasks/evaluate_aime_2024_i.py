@@ -202,7 +202,7 @@ if __name__ == "__main__":
         "--hf_model_id",
         type=str,
         help="The Huggingface model to evaluate",
-        default="unsloth/Meta-Llama-3.1-8B-Instruct",
+        default="unsloth/llama-3-8b-Instruct-bnb-4bit",
     )
 
     # Dataset arguments
