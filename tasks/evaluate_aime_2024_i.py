@@ -138,15 +138,15 @@ def evaluate_hf_model_aime(
 Here are a few examples:
 
 <you are asked>
+Let $S$ be the number of ordered pairs of integers $(a,b)$ with $1 \\leq a \\leq 100$ and $b \\geq 0$ such that the polynomial $x^2+ax+b$ can be factored into the product of two (not necessarily distinct) linear factors with integer coefficients. Find the remainder when $S$ is divided by $1000$.
 </you are asked>
-<you should answer>
-</you should answer>
-
+600
 
 <you are asked>
+In $\\triangle ABC, AB = AC = 10$ and $BC = 12$. Point $D$ lies strictly between $A$ and $B$ on $\\overline{AB}$ and point $E$ lies strictly between $A$ and $C$ on $\\overline{AC}$ so that $AD = DE = EC$. Then $AD$ can be expressed in the form $\\dfrac{p}{q}$, where $p$ and $q$ are relatively prime positive integers. Find $p+q$.
 </you are asked>
-<you should answer>
-</you should answer>
+289
+
 
 The question is:
 
