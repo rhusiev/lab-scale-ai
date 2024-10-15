@@ -147,15 +147,15 @@ def evaluate_hf_model_aime(
     """
     exact_match: list[bool] = []
     model.to(device)  # Ensure the model is on the correct device
-    pipeline = pipeline(
+    pline = pipeline(
         "text-generation",
         model=model_id,
         model_kwargs={"torch_dtype": torch.bfloat16},
         device="auto",
     )
     terminators = [
-        pipeline.tokenizer.eos_token_id,
-        pipeline.tokenizer.convert_tokens_to_ids("<|eot_id|>"),
+        pline.tokenizer.eos_token_id,
+        pline.tokenizer.convert_tokens_to_ids("<|eot_id|>"),
     ]
 
     for idx in tqdm(range(min(max_samples, len(data))), desc="Evaluating AIME model"):
@@ -186,11 +186,11 @@ In $\\triangle ABC, AB = AC = 10$ and $BC = 12$. Point $D$ lies strictly between
             {"role": "user", "content": question},
         ]
 
-        prompt = pipeline.tokenizer.apply_chat_template(
+        prompt = pline.tokenizer.apply_chat_template(
             messages, tokenize=False, add_generation_prompt=True
         )
 
-        outputs = pipeline(
+        outputs = pline(
             prompt,
             max_new_tokens=256,
             eos_token_id=terminators,
