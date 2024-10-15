@@ -16,3 +16,4 @@ tasks/wandb/
 tasks/peft_model/
 wandb/
 tasks/llama-2-7b-chat-hf
+data/
