@@ -289,7 +289,7 @@ if __name__ == "__main__":
         # Evaluate the Hugging Face model
         print("Evaluating Hugging Face model on AIME task: ", args.hf_model_id)
         aime_metrics = evaluate_hf_model_aime(
-            model, tokenizer, data, "question", "answer", max_samples=args.max_samples
+            model, tokenizer, data, question_column="question", answer_column="answer", max_samples=args.max_samples
         )
     else:
         raise ValueError("Invalid model type: ", args.model_type)
