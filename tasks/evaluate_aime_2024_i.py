@@ -14,6 +14,17 @@ from os import path, makedirs, getenv
 import re
 from typing import Optional
 
+templates = {
+    "llama": """<|begin_of_text|><|start_header_id|>system<|end_header_id|>
+[[SYSTEM_PROMPT]]<|eot_id|><|start_header_id|>user<|end_header_id|>
+[[USER_PROMPT]]<|eot_id|><|start_header_id|>assistant<|end_header_id|>""",
+    "gemma": """<start_of_turn>system
+[[SYSTEM_PROMPT]]<end_of_turn>
+<start_of_turn>user
+[[USER_PROMPT]]<end_of_turn>
+<start_of_turn>model
+"""
+
 SYSTEM_PROMPT = """Give answers to user's questions. Each answer is an integer between 0 and 1000.
 Here are a few examples:
 
@@ -213,9 +224,7 @@ if __name__ == "__main__":
         "--model_template",
         type=str,
         help="The template for the model's chat",
-        default="""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
-[[SYSTEM_PROMPT]]<|eot_id|><|start_header_id|>user<|end_header_id|>
-[[USER_PROMPT]]<|eot_id|><|start_header_id|>assistant<|end_header_id|>""",
+        default="llama",
     )
 
     # Dataset arguments
