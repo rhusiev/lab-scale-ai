@@ -166,7 +166,7 @@ def evaluate_hf_model_aime(
     """
     Evaluate a Hugging Face model on a AIME 2024 I task.
     """
-    generation_kwargs = {"max_tokens": 100, "stop": ["</s>"], "echo": True, "top_k": 1}
+    generation_kwargs = {"max_tokens": 100, "stop": ["</s>"], "echo": False, "top_k": 1}
     exact_match: list[bool] = []
 
     for idx in tqdm(range(min(max_samples, len(data))), desc="Evaluating AIME model"):
@@ -182,6 +182,9 @@ def evaluate_hf_model_aime(
 
         res = llm(prompt, **generation_kwargs)
         decoded = res["choices"][0]["text"]
+
+        print("prompt", prompt)
+        print("decoded", decoded)
 
         # Remove the suffix if specified - note that Mistral-Instruct models add a </s> suffix to specify the end of the output
         if remove_suffix is not None:
