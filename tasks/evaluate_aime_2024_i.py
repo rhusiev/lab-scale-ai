@@ -6,7 +6,7 @@ import argparse
 import torch
 import wandb
 
-from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
+from transformers import AutoModelForCausalLM, AutoTokenizer, Pipeline, pipeline
 from datasets import load_dataset
 from peft import PeftModel
 from typing import Iterable
@@ -131,8 +131,7 @@ def compute_exact(a_gold, a_pred):
 
 
 def evaluate_hf_model_aime(
-    model: AutoModelForCausalLM,
-    tokenizer: AutoTokenizer,
+    pline: Pipeline,
     data: Sequence[dict[str, str]],
     question_column: str = "input",
     answer_column: str = "output",
@@ -146,13 +145,6 @@ def evaluate_hf_model_aime(
     Evaluate a Hugging Face model on a AIME 2024 I task.
     """
     exact_match: list[bool] = []
-    model.to(device)  # Ensure the model is on the correct device
-    pline = pipeline(
-        "text-generation",
-        model=model_id,
-        model_kwargs={"torch_dtype": torch.bfloat16},
-        device="auto",
-    )
     terminators = [
         pline.tokenizer.eos_token_id,
         pline.tokenizer.convert_tokens_to_ids("<|eot_id|>"),
@@ -301,15 +293,17 @@ if __name__ == "__main__":
     if args.model_type == "hf":
         # Load the Hugging Face model and tokenizer
         print("Loading Hugging Face model: ", args.hf_model_id)
-        tokenizer = AutoTokenizer.from_pretrained(args.hf_model_id)
-        model = AutoModelForCausalLM.from_pretrained(args.hf_model_id).to(args.device)
-        model.eval()
+        pline = pipeline(
+            "text-generation",
+            model=args.hf_model_id,
+            model_kwargs={"torch_dtype": torch.bfloat16},
+            device="auto",
+        )
 
         # Evaluate the Hugging Face model
         print("Evaluating Hugging Face model on AIME task: ", args.hf_model_id)
         aime_metrics = evaluate_hf_model_aime(
-            model,
-            tokenizer,
+            pline,
             data,
             question_column="question",
             answer_column="answer",
