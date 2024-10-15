@@ -14,7 +14,7 @@ from os import path, makedirs, getenv
 import re
 from typing import Optional
 
-templates = {
+TEMPLATES = {
     "llama": """<|begin_of_text|><|start_header_id|>system<|end_header_id|>
 [[SYSTEM_PROMPT]]<|eot_id|><|start_header_id|>user<|end_header_id|>
 [[USER_PROMPT]]<|eot_id|><|start_header_id|>assistant<|end_header_id|>""",
@@ -308,7 +308,7 @@ if __name__ == "__main__":
         print("Evaluating Hugging Face model on AIME task: ", model_id)
         aime_metrics = evaluate_hf_model_aime(
             llm,
-            args.model_template,
+            TEMPLATES[args.model_template],
             data,
             question_column="question",
             answer_column="answer",
