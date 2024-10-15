@@ -309,7 +309,7 @@ if __name__ == "__main__":
         print("Evaluating Hugging Face model on AIME task: ", model_id)
         aime_metrics = evaluate_hf_model_aime(
             llm,
-            model_template=args.model_template,
+            args.model_template,
             data,
             question_column="question",
             answer_column="answer",
