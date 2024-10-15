@@ -122,9 +122,10 @@ def get_tokens(s):
 def compute_exact(a_gold, a_pred):
     try:
         int_pred = int(normalize_answer(a_pred))
+        int_gold = int(normalize_answer(a_gold))
     except ValueError:
         return False
-    return int(normalize_answer(a_gold)) == int_pred
+    return int_gold == int_pred
 
 
 ############
@@ -161,21 +162,20 @@ def evaluate_hf_model_aime(
                 "content": """Consider questions from a user and give answers. Each answer is an integer between 0 and 1000.
 Here are a few examples:
 
-<you are asked>
+### Question
 Let $S$ be the number of ordered pairs of integers $(a,b)$ with $1 \\leq a \\leq 100$ and $b \\geq 0$ such that the polynomial $x^2+ax+b$ can be factored into the product of two (not necessarily distinct) linear factors with integer coefficients. Find the remainder when $S$ is divided by $1000$.
-</you are asked>
-<you should answer>
+Provide a single integer answer.
+### Answer
 600
-</you should answer>
 
-<you are asked>
+### Question
 In $\\triangle ABC, AB = AC = 10$ and $BC = 12$. Point $D$ lies strictly between $A$ and $B$ on $\\overline{AB}$ and point $E$ lies strictly between $A$ and $C$ on $\\overline{AC}$ so that $AD = DE = EC$. Then $AD$ can be expressed in the form $\\dfrac{p}{q}$, where $p$ and $q$ are relatively prime positive integers. Find $p+q$.
-</you are asked>
-<you should answer>
+Provide a single integer answer.
+### Answer
 289
-</you should answer>""",
+""",
             },
-            {"role": "user", "content": question},
+            {"role": "user", "content": f"{question}\nProvide a single integer answer."},
         ]
 
         prompt = pline.tokenizer.apply_chat_template(
@@ -192,8 +192,10 @@ In $\\triangle ABC, AB = AC = 10$ and $BC = 12$. Point $D$ lies strictly between
         )
         decoded = outputs[0]["generated_text"][len(prompt) :]
 
-        print(f"Input: {messages}")
+        print(f"System: {messages[0]['content']}")
+        print(f"Question: {messages[1]['content']}")
         print(f"Answer: {decoded}")
+        print(f"Ground truth: {ground_truth}")
 
         # Remove the suffix if specified - note that Mistral-Instruct models add a </s> suffix to specify the end of the output
         if remove_suffix is not None:
