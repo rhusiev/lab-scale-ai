@@ -142,6 +142,7 @@ def compute_exact(a_gold, a_pred):
 
 def evaluate_hf_model_aime(
     llm: Llama,
+    model_template: str,
     data: Sequence[dict[str, str]],
     question_column: str = "input",
     answer_column: str = "output",
@@ -169,11 +170,7 @@ def evaluate_hf_model_aime(
         # Generate and decode the output string, removing the special tokens and any suffixes
         user_prompt = f"{question}\nProvide a single integer answer."
 
-        prompt = f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
-
-{SYSTEM_PROMPT}<|eot_id|><|start_header_id|>user<|end_header_id|>
-
-{user_prompt}<|eot_id|><|start_header_id|>assistant<|end_header_id|>"""
+        prompt = model_template.replace("[[SYSTEM_PROMPT]]", SYSTEM_PROMPT).replace("[[USER_PROMPT]]", user_prompt)
 
         res = llm(prompt, **generation_kwargs)
         decoded = print(res["choices"][0]["text"])
@@ -216,6 +213,14 @@ if __name__ == "__main__":
         type=str,
         help="The Huggingface model's gguf filename (if loading a gguf)",
         default="meta-llama-3.1-8b-instruct.Q4_K_M.gguf",
+    )
+    parser.add_argument(
+        "--model_template",
+        type=str,
+        help="The template for the model's chat",
+        default="""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
+[[SYSTEM_PROMPT]]<|eot_id|><|start_header_id|>user<|end_header_id|>
+[[user_prompt]]<|eot_id|><|start_header_id|>assistant<|end_header_id|>""",
     )
 
     # Dataset arguments
@@ -304,6 +309,7 @@ if __name__ == "__main__":
         print("Evaluating Hugging Face model on AIME task: ", model_id)
         aime_metrics = evaluate_hf_model_aime(
             llm,
+            model_template=args.model_template,
             data,
             question_column="question",
             answer_column="answer",
