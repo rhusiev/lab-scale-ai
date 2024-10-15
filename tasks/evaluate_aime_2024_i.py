@@ -159,7 +159,7 @@ def evaluate_hf_model_aime(
         messages = [
             {
                 "role": "system",
-                "content": """Consider questions from a user and give answers. Each answer is an integer between 0 and 1000.
+                "content": """Give answers to user's questions. Each answer is an integer between 0 and 1000.
 Here are a few examples:
 
 ### Question
@@ -223,7 +223,7 @@ if __name__ == "__main__":
         "--hf_model_id",
         type=str,
         help="The Huggingface model to evaluate",
-        default="unsloth/llama-3-8b-Instruct-bnb-4bit",
+        default="meta-llama-3.1-8b-instruct.Q4_K_M.gguf",
     )
 
     # Dataset arguments
