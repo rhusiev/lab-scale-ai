@@ -220,7 +220,7 @@ if __name__ == "__main__":
         help="The template for the model's chat",
         default="""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
 [[SYSTEM_PROMPT]]<|eot_id|><|start_header_id|>user<|end_header_id|>
-[[user_prompt]]<|eot_id|><|start_header_id|>assistant<|end_header_id|>""",
+[[USER_PROMPT]]<|eot_id|><|start_header_id|>assistant<|end_header_id|>""",
     )
 
     # Dataset arguments
