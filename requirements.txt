@@ -15,3 +15,6 @@ torch
 transformers
 trl
 wandb
+gguf
+sentencepiece
+llama_cpp

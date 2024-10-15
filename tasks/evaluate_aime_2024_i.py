@@ -1,24 +1,33 @@
 from collections.abc import Sequence
-import evaluate
 import numpy as np
 import json
 import argparse
 import torch
 import wandb
+from llama_cpp import Llama
+from huggingface_hub import hf_hub_download
 
-from transformers import AutoModelForCausalLM, AutoTokenizer, Pipeline, pipeline
 from datasets import load_dataset
-from peft import PeftModel
-from typing import Iterable
 from tqdm import tqdm
 from os import path, makedirs, getenv
 
-from generate_from_hf_model import generate_from_prompt
-
-from collections import Counter
 import re
-import string
-from typing import Optional, List
+from typing import Optional
+
+SYSTEM_PROMPT = """Give answers to user's questions. Each answer is an integer between 0 and 1000.
+Here are a few examples:
+
+### Question
+Let $S$ be the number of ordered pairs of integers $(a,b)$ with $1 \\leq a \\leq 100$ and $b \\geq 0$ such that the polynomial $x^2+ax+b$ can be factored into the product of two (not necessarily distinct) linear factors with integer coefficients. Find the remainder when $S$ is divided by $1000$.
+Provide a single integer answer.
+### Answer
+600
+
+### Question
+In $\\triangle ABC, AB = AC = 10$ and $BC = 12$. Point $D$ lies strictly between $A$ and $B$ on $\\overline{AB}$ and point $E$ lies strictly between $A$ and $C$ on $\\overline{AC}$ so that $AD = DE = EC$. Then $AD$ can be expressed in the form $\\dfrac{p}{q}$, where $p$ and $q$ are relatively prime positive integers. Find $p+q$.
+Provide a single integer answer.
+### Answer
+289"""
 
 #####
 # TODO: Below is partially adapted better answer parsing from
@@ -132,7 +141,7 @@ def compute_exact(a_gold, a_pred):
 
 
 def evaluate_hf_model_aime(
-    pline: Pipeline,
+    llm: Llama,
     data: Sequence[dict[str, str]],
     question_column: str = "input",
     answer_column: str = "output",
@@ -145,52 +154,29 @@ def evaluate_hf_model_aime(
     """
     Evaluate a Hugging Face model on a AIME 2024 I task.
     """
+    generation_kwargs = {
+        "max_tokens": 100,
+        "stop": ["</s>"],
+        "echo": True,
+        "top_k": 1
+    }
     exact_match: list[bool] = []
-    terminators = [
-        pline.tokenizer.eos_token_id,
-        pline.tokenizer.convert_tokens_to_ids("<|eot_id|>"),
-    ]
 
     for idx in tqdm(range(min(max_samples, len(data))), desc="Evaluating AIME model"):
         question = data[idx][question_column]
         ground_truth = str(data[idx][answer_column])
 
         # Generate and decode the output string, removing the special tokens and any suffixes
-        messages = [
-            {
-                "role": "system",
-                "content": """Give answers to user's questions. Each answer is an integer between 0 and 1000.
-Here are a few examples:
+        user_prompt = f"{question}\nProvide a single integer answer."
 
-### Question
-Let $S$ be the number of ordered pairs of integers $(a,b)$ with $1 \\leq a \\leq 100$ and $b \\geq 0$ such that the polynomial $x^2+ax+b$ can be factored into the product of two (not necessarily distinct) linear factors with integer coefficients. Find the remainder when $S$ is divided by $1000$.
-Provide a single integer answer.
-### Answer
-600
+        prompt = f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
 
-### Question
-In $\\triangle ABC, AB = AC = 10$ and $BC = 12$. Point $D$ lies strictly between $A$ and $B$ on $\\overline{AB}$ and point $E$ lies strictly between $A$ and $C$ on $\\overline{AC}$ so that $AD = DE = EC$. Then $AD$ can be expressed in the form $\\dfrac{p}{q}$, where $p$ and $q$ are relatively prime positive integers. Find $p+q$.
-Provide a single integer answer.
-### Answer
-289
-""",
-            },
-            {"role": "user", "content": f"{question}\nProvide a single integer answer."},
-        ]
+{SYSTEM_PROMPT}<|eot_id|><|start_header_id|>user<|end_header_id|>
 
-        prompt = pline.tokenizer.apply_chat_template(
-            messages, tokenize=False, add_generation_prompt=True
-        )
+{user_prompt}<|eot_id|><|start_header_id|>assistant<|end_header_id|>"""
 
-        outputs = pline(
-            prompt,
-            max_new_tokens=256,
-            eos_token_id=terminators,
-            do_sample=True,
-            temperature=0.6,
-            top_p=0.9,
-        )
-        decoded = outputs[0]["generated_text"][len(prompt) :]
+        res = llm(prompt, **generation_kwargs)
+        decoded = print(res["choices"][0]["text"])
 
         print(f"System: {messages[0]['content']}")
         print(f"Question: {messages[1]['content']}")
@@ -300,21 +286,18 @@ if __name__ == "__main__":
         # Load the Hugging Face model and tokenizer
         print("Loading Hugging Face model: ", model_id)
         filename = "meta-llama-3.1-8b-instruct.Q4_K_M.gguf"
-        tokenizer = AutoTokenizer.from_pretrained(model_id, gguf_file=filename)
-        model = AutoModelForCausalLM.from_pretrained(model_id, gguf_file=filename)
-        model.to(args.device)
-        pline = pipeline(
-            "text-generation",
-            model=model,
-            tokenizer=tokenizer,
-            model_kwargs={"torch_dtype": torch.bfloat16},
-            #device="auto", # no work :(
+        model_path = hf_hub_download(model_id, filename)
+        llm = Llama(
+            model_path=model_path,
+            n_ctx=1024,
+            n_threads=32,
+            n_gpu_layers=-1
         )
 
         # Evaluate the Hugging Face model
-        print("Evaluating Hugging Face model on AIME task: ", args.hf_model_id)
+        print("Evaluating Hugging Face model on AIME task: ", model_id)
         aime_metrics = evaluate_hf_model_aime(
-            pline,
+            llm,
             data,
             question_column="question",
             answer_column="answer",
