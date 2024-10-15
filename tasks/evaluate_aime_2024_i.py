@@ -299,10 +299,14 @@ if __name__ == "__main__":
         model_id = "SanctumAI/Meta-Llama-3.1-8B-Instruct-GGUF"
         # Load the Hugging Face model and tokenizer
         print("Loading Hugging Face model: ", model_id)
+        filename = "meta-llama-3.1-8b-instruct.Q4_K_M.gguf"
+        tokenizer = AutoTokenizer.from_pretrained(model_id, gguf_file=filename)
+        model = AutoModelForCausalLM.from_pretrained(model_id, gguf_file=filename)
+        model.to(args.device)
         pline = pipeline(
             "text-generation",
-            model=model_id,
-            gguf_file="meta-llama-3.1-8b-instruct.Q4_K_M.gguf",
+            model=model,
+            tokenizer=tokenizer,
             model_kwargs={"torch_dtype": torch.bfloat16},
             #device="auto", # no work :(
         )
