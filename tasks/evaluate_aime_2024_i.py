@@ -175,11 +175,6 @@ def evaluate_hf_model_aime(
         res = llm(prompt, **generation_kwargs)
         decoded = print(res["choices"][0]["text"])
 
-        print(f"System: {messages[0]['content']}")
-        print(f"Question: {messages[1]['content']}")
-        print(f"Answer: {decoded}")
-        print(f"Ground truth: {ground_truth}")
-
         # Remove the suffix if specified - note that Mistral-Instruct models add a </s> suffix to specify the end of the output
         if remove_suffix is not None:
             decoded = decoded.replace(remove_suffix, "")
