@@ -17,4 +17,4 @@ trl
 wandb
 gguf
 sentencepiece
-llama_cpp
+llama-cpp-python
