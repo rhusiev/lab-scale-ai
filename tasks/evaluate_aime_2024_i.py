@@ -297,7 +297,7 @@ if __name__ == "__main__":
             "text-generation",
             model=args.hf_model_id,
             model_kwargs={"torch_dtype": torch.bfloat16},
-            device="auto",
+            #device="auto", # no work :(
         )
 
         # Evaluate the Hugging Face model
