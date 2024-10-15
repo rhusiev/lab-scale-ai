@@ -160,7 +160,7 @@ The question is:
     """
     Evaluate a Hugging Face model on a AIME 2024 I task.
     """
-    exact_match, f1 = [], []
+    exact_match: list[bool] = []
     model.to(device)  # Ensure the model is on the correct device
 
     for idx in tqdm(range(min(max_samples, len(data))), desc="Evaluating AIME model"):
@@ -284,7 +284,7 @@ if __name__ == "__main__":
         # Evaluate the Hugging Face model
         print("Evaluating Hugging Face model on AIME task: ", args.hf_model_id)
         aime_metrics = evaluate_hf_model_aime(
-            model, tokenizer, data, "question", "answer", args.max_samples
+            model, tokenizer, data, "question", "answer", max_samples=args.max_samples
         )
     else:
         raise ValueError("Invalid model type: ", args.model_type)
