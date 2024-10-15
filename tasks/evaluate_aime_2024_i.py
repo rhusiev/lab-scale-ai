@@ -192,6 +192,9 @@ In $\\triangle ABC, AB = AC = 10$ and $BC = 12$. Point $D$ lies strictly between
         )
         decoded = outputs[0]["generated_text"][len(prompt) :]
 
+        print(f"Input: {messages}")
+        print(f"Answer: {decoded}")
+
         # Remove the suffix if specified - note that Mistral-Instruct models add a </s> suffix to specify the end of the output
         if remove_suffix is not None:
             decoded = decoded.replace(remove_suffix, "")
