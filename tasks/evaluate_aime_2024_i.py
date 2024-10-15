@@ -302,7 +302,7 @@ if __name__ == "__main__":
             model_path=model_path,
             n_ctx=1024,
             n_threads=32,
-            n_gpu_layers=-1
+            n_gpu_layers=30
         )
 
         # Evaluate the Hugging Face model
