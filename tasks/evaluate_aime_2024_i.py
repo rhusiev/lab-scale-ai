@@ -6,7 +6,7 @@ import argparse
 import torch
 import wandb
 
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
 from datasets import load_dataset
 from peft import PeftModel
 from typing import Iterable
@@ -134,25 +134,6 @@ def evaluate_hf_model_aime(
     model: AutoModelForCausalLM,
     tokenizer: AutoTokenizer,
     data: Sequence[dict[str, str]],
-    start_prompt: str = """Consider a question and give an answer - a single integer between 0 and 1000.
-Here are a few examples:
-
-<you are asked>
-Let $S$ be the number of ordered pairs of integers $(a,b)$ with $1 \\leq a \\leq 100$ and $b \\geq 0$ such that the polynomial $x^2+ax+b$ can be factored into the product of two (not necessarily distinct) linear factors with integer coefficients. Find the remainder when $S$ is divided by $1000$.
-</you are asked>
-600
-
-<you are asked>
-In $\\triangle ABC, AB = AC = 10$ and $BC = 12$. Point $D$ lies strictly between $A$ and $B$ on $\\overline{AB}$ and point $E$ lies strictly between $A$ and $C$ on $\\overline{AC}$ so that $AD = DE = EC$. Then $AD$ can be expressed in the form $\\dfrac{p}{q}$, where $p$ and $q$ are relatively prime positive integers. Find $p+q$.
-</you are asked>
-289
-
-
-The question is:
-
-<you are asked>
-""",
-    end_prompt: str = "\n</you are asked>",
     question_column: str = "input",
     answer_column: str = "output",
     max_samples: int = None,
@@ -166,30 +147,62 @@ The question is:
     """
     exact_match: list[bool] = []
     model.to(device)  # Ensure the model is on the correct device
+    pipeline = pipeline(
+        "text-generation",
+        model=model_id,
+        model_kwargs={"torch_dtype": torch.bfloat16},
+        device="auto",
+    )
+    terminators = [
+        pipeline.tokenizer.eos_token_id,
+        pipeline.tokenizer.convert_tokens_to_ids("<|eot_id|>"),
+    ]
 
     for idx in tqdm(range(min(max_samples, len(data))), desc="Evaluating AIME model"):
         question = data[idx][question_column]
         ground_truth = str(data[idx][answer_column])
 
         # Generate and decode the output string, removing the special tokens and any suffixes
-        decoded = generate_from_prompt(
-            model=model,
-            tokenizer=tokenizer,
-            input_data=question,
-            start_prompt=start_prompt,
-            end_prompt=end_prompt,
-            min_new_tokens=min_new_tokens,
-            max_new_tokens=max_new_tokens,
+        messages = [
+            {
+                "role": "system",
+                "content": """Consider questions from a user and give answers. Each answer is an integer between 0 and 1000.
+Here are a few examples:
+
+<you are asked>
+Let $S$ be the number of ordered pairs of integers $(a,b)$ with $1 \\leq a \\leq 100$ and $b \\geq 0$ such that the polynomial $x^2+ax+b$ can be factored into the product of two (not necessarily distinct) linear factors with integer coefficients. Find the remainder when $S$ is divided by $1000$.
+</you are asked>
+<you should answer>
+600
+</you should answer>
+
+<you are asked>
+In $\\triangle ABC, AB = AC = 10$ and $BC = 12$. Point $D$ lies strictly between $A$ and $B$ on $\\overline{AB}$ and point $E$ lies strictly between $A$ and $C$ on $\\overline{AC}$ so that $AD = DE = EC$. Then $AD$ can be expressed in the form $\\dfrac{p}{q}$, where $p$ and $q$ are relatively prime positive integers. Find $p+q$.
+</you are asked>
+<you should answer>
+289
+</you should answer>""",
+            },
+            {"role": "user", "content": question},
+        ]
+
+        prompt = pipeline.tokenizer.apply_chat_template(
+            messages, tokenize=False, add_generation_prompt=True
         )
+
+        outputs = pipeline(
+            prompt,
+            max_new_tokens=256,
+            eos_token_id=terminators,
+            do_sample=True,
+            temperature=0.6,
+            top_p=0.9,
+        )
+        decoded = outputs[0]["generated_text"][len(prompt) :]
 
         # Remove the suffix if specified - note that Mistral-Instruct models add a </s> suffix to specify the end of the output
         if remove_suffix is not None:
             decoded = decoded.replace(remove_suffix, "")
-
-        print(f"Question: {question}")
-        print(f"Answer: {decoded}")
-        print(f"Ground Truth: {ground_truth}")
-        print()
 
         exact_match.append(compute_exact(decoded, ground_truth))
 
@@ -198,7 +211,9 @@ The question is:
 
 if __name__ == "__main__":
     # Parse the command line arguments
-    parser = argparse.ArgumentParser(description="Evaluate a model on a AIME 2024 I task.")
+    parser = argparse.ArgumentParser(
+        description="Evaluate a model on a AIME 2024 I task."
+    )
 
     # Model arguments
     parser.add_argument(
@@ -293,7 +308,12 @@ if __name__ == "__main__":
         # Evaluate the Hugging Face model
         print("Evaluating Hugging Face model on AIME task: ", args.hf_model_id)
         aime_metrics = evaluate_hf_model_aime(
-            model, tokenizer, data, question_column="question", answer_column="answer", max_samples=args.max_samples
+            model,
+            tokenizer,
+            data,
+            question_column="question",
+            answer_column="answer",
+            max_samples=args.max_samples,
         )
     else:
         raise ValueError("Invalid model type: ", args.model_type)
