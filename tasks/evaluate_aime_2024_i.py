@@ -219,12 +219,12 @@ if __name__ == "__main__":
         help="The type of model to evaluate (currently only Huggingface)",
         default="hf",
     )
-    parser.add_argument(
-        "--hf_model_id",
-        type=str,
-        help="The Huggingface model to evaluate",
-        default="meta-llama-3.1-8b-instruct.Q4_K_M.gguf",
-    )
+    # parser.add_argument(
+    #     "--hf_model_id",
+    #     type=str,
+    #     help="The Huggingface model to evaluate",
+    #     default="SanctumAI/Meta-Llama-3.1-8B-Instruct-GGUF",
+    # )
 
     # Dataset arguments
     parser.add_argument(
@@ -300,7 +300,8 @@ if __name__ == "__main__":
         print("Loading Hugging Face model: ", args.hf_model_id)
         pline = pipeline(
             "text-generation",
-            model=args.hf_model_id,
+            model="SanctumAI/Meta-Llama-3.1-8B-Instruct-GGUF",
+            gguf_file="meta-llama-3.1-8b-instruct.Q4_K_M.gguf",
             model_kwargs={"torch_dtype": torch.bfloat16},
             #device="auto", # no work :(
         )
