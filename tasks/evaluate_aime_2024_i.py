@@ -205,12 +205,18 @@ if __name__ == "__main__":
         help="The type of model to evaluate (currently only Huggingface)",
         default="hf",
     )
-    # parser.add_argument(
-    #     "--hf_model_id",
-    #     type=str,
-    #     help="The Huggingface model to evaluate",
-    #     default="SanctumAI/Meta-Llama-3.1-8B-Instruct-GGUF",
-    # )
+    parser.add_argument(
+        "--hf_model_id",
+        type=str,
+        help="The Huggingface model to evaluate",
+        default="SanctumAI/Meta-Llama-3.1-8B-Instruct-GGUF",
+    )
+    parser.add_argument(
+        "--hf_gguf_file",
+        type=str,
+        help="The Huggingface model's gguf filename (if loading a gguf)",
+        default="meta-llama-3.1-8b-instruct.Q4_K_M.gguf",
+    )
 
     # Dataset arguments
     parser.add_argument(
@@ -282,10 +288,10 @@ if __name__ == "__main__":
 
     # Model evaluation logic based on the model type
     if args.model_type == "hf":
-        model_id = "SanctumAI/Meta-Llama-3.1-8B-Instruct-GGUF"
+        model_id = args.hf_model_id
         # Load the Hugging Face model and tokenizer
         print("Loading Hugging Face model: ", model_id)
-        filename = "meta-llama-3.1-8b-instruct.Q4_K_M.gguf"
+        filename = args.hf_gguf_file
         model_path = hf_hub_download(model_id, filename)
         llm = Llama(
             model_path=model_path,
