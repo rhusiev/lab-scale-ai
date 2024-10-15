@@ -22,8 +22,8 @@ templates = {
 [[SYSTEM_PROMPT]]<end_of_turn>
 <start_of_turn>user
 [[USER_PROMPT]]<end_of_turn>
-<start_of_turn>model
-"""
+<start_of_turn>model""",
+}
 
 SYSTEM_PROMPT = """Give answers to user's questions. Each answer is an integer between 0 and 1000.
 Here are a few examples:
@@ -166,12 +166,7 @@ def evaluate_hf_model_aime(
     """
     Evaluate a Hugging Face model on a AIME 2024 I task.
     """
-    generation_kwargs = {
-        "max_tokens": 100,
-        "stop": ["</s>"],
-        "echo": True,
-        "top_k": 1
-    }
+    generation_kwargs = {"max_tokens": 100, "stop": ["</s>"], "echo": True, "top_k": 1}
     exact_match: list[bool] = []
 
     for idx in tqdm(range(min(max_samples, len(data))), desc="Evaluating AIME model"):
@@ -181,7 +176,9 @@ def evaluate_hf_model_aime(
         # Generate and decode the output string, removing the special tokens and any suffixes
         user_prompt = f"{question}\nProvide a single integer answer."
 
-        prompt = model_template.replace("[[SYSTEM_PROMPT]]", SYSTEM_PROMPT).replace("[[USER_PROMPT]]", user_prompt)
+        prompt = model_template.replace("[[SYSTEM_PROMPT]]", SYSTEM_PROMPT).replace(
+            "[[USER_PROMPT]]", user_prompt
+        )
 
         res = llm(prompt, **generation_kwargs)
         decoded = print(res["choices"][0]["text"])
@@ -302,12 +299,7 @@ if __name__ == "__main__":
         print("Loading Hugging Face model: ", model_id)
         filename = args.hf_gguf_file
         model_path = hf_hub_download(model_id, filename)
-        llm = Llama(
-            model_path=model_path,
-            n_ctx=1024,
-            n_threads=32,
-            n_gpu_layers=30
-        )
+        llm = Llama(model_path=model_path, n_ctx=1024, n_threads=32, n_gpu_layers=30)
 
         # Evaluate the Hugging Face model
         print("Evaluating Hugging Face model on AIME task: ", model_id)
