@@ -296,11 +296,12 @@ if __name__ == "__main__":
 
     # Model evaluation logic based on the model type
     if args.model_type == "hf":
+        model_id = "SanctumAI/Meta-Llama-3.1-8B-Instruct-GGUF"
         # Load the Hugging Face model and tokenizer
-        print("Loading Hugging Face model: ", args.hf_model_id)
+        print("Loading Hugging Face model: ", model_id)
         pline = pipeline(
             "text-generation",
-            model="SanctumAI/Meta-Llama-3.1-8B-Instruct-GGUF",
+            model=model_id,
             gguf_file="meta-llama-3.1-8b-instruct.Q4_K_M.gguf",
             model_kwargs={"torch_dtype": torch.bfloat16},
             #device="auto", # no work :(
