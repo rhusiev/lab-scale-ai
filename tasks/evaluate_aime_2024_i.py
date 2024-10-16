@@ -147,6 +147,7 @@ def compute_exact(a_gold, a_pred):
         int_pred = int(normalize_answer(a_pred))
         int_gold = int(normalize_answer(a_gold))
     except ValueError:
+        print("Non-number in answer")
         return False
     return int_gold == int_pred
 
@@ -186,8 +187,7 @@ def evaluate_hf_model_aime(
         res = llm(prompt, **generation_kwargs)
         decoded = res["choices"][0]["text"]
 
-        print("prompt", prompt)
-        print("decoded", decoded)
+        print(f"{ground_truth = } -> {decoded = }")
 
         # Remove the suffix if specified - note that Mistral-Instruct models add a </s> suffix to specify the end of the output
         if remove_suffix is not None:
