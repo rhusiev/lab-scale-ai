@@ -5,16 +5,18 @@ bitsandbytes
 datasets
 evaluate
 huggingface_hub
-numpy
+numpy==1.23.5
 openai
+pandas==2.0
 peft
+pydantic==1.9
 rouge-score
 scikit-learn
-scipy
+scipy==1.11
 torch
 transformers
 trl
 wandb
 gguf
 sentencepiece
-llama-cpp-python # CMAKE_ARGS="-DGGML_CUDA=on" pip install --upgrade --force-reinstall llama-cpp-python --no-cache-di
+llama-cpp-python # pip install llama-cpp-python --force-reinstall --upgrade --user --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cu124
