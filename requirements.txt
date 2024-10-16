@@ -1,5 +1,6 @@
 absl-py
 accelerate
+anyio==3.7.1
 bert-score
 bitsandbytes
 datasets
@@ -19,4 +20,4 @@ trl
 wandb
 gguf
 sentencepiece
-llama-cpp-python # pip install llama-cpp-python --force-reinstall --upgrade --user --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cu124
+# pip install llama-cpp-python --force-reinstall --upgrade --user --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cu124
