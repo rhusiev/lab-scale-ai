@@ -17,28 +17,31 @@ from typing import Optional
 TEMPLATES = {
     "llama": """<|begin_of_text|><|start_header_id|>system<|end_header_id|>
 [[SYSTEM_PROMPT]]<|eot_id|><|start_header_id|>user<|end_header_id|>
+Let $S$ be the number of ordered pairs of integers $(a,b)$ with $1 \\leq a \\leq 100$ and $b \\geq 0$ such that the polynomial $x^2+ax+b$ can be factored into the product of two (not necessarily distinct) linear factors with integer coefficients. Find the remainder when $S$ is divided by $1000$.
+Provide a single integer answer.<|eot_id|><|start_header_id|>assistant<|end_header_id|>
+600<|eot_id|><|start_header_id|>user<|end_header_id|>
+In $\\triangle ABC, AB = AC = 10$ and $BC = 12$. Point $D$ lies strictly between $A$ and $B$ on $\\overline{AB}$ and point $E$ lies strictly between $A$ and $C$ on $\\overline{AC}$ so that $AD = DE = EC$. Then $AD$ can be expressed in the form $\\dfrac{p}{q}$, where $p$ and $q$ are relatively prime positive integers. Find $p+q$.
+Provide a single integer answer.<|eot_id|><|start_header_id|>assistant<|end_header_id|>
+289<|eot_id|><|start_header_id|>user<|end_header_id|>
 [[USER_PROMPT]]<|eot_id|><|start_header_id|>assistant<|end_header_id|>""",
     "gemma": """<start_of_turn>system
 [[SYSTEM_PROMPT]]<end_of_turn>
+<start_of_turn>user
+Let $S$ be the number of ordered pairs of integers $(a,b)$ with $1 \\leq a \\leq 100$ and $b \\geq 0$ such that the polynomial $x^2+ax+b$ can be factored into the product of two (not necessarily distinct) linear factors with integer coefficients. Find the remainder when $S$ is divided by $1000$.
+Provide a single integer answer.<end_of_turn>
+<start_of_turn>assistant
+600<end_of_turn>
+<start_of_turn>user
+In $\\triangle ABC, AB = AC = 10$ and $BC = 12$. Point $D$ lies strictly between $A$ and $B$ on $\\overline{AB}$ and point $E$ lies strictly between $A$ and $C$ on $\\overline{AC}$ so that $AD = DE = EC$. Then $AD$ can be expressed in the form $\\dfrac{p}{q}$, where $p$ and $q$ are relatively prime positive integers. Find $p+q$.
+Provide a single integer answer.<end_of_turn>
+<start_of_turn>assistant
+289<end_of_turn>
 <start_of_turn>user
 [[USER_PROMPT]]<end_of_turn>
 <start_of_turn>model""",
 }
 
-SYSTEM_PROMPT = """Give answers to user's questions. Each answer is an integer between 0 and 1000.
-Here are a few examples:
-
-### Question
-Let $S$ be the number of ordered pairs of integers $(a,b)$ with $1 \\leq a \\leq 100$ and $b \\geq 0$ such that the polynomial $x^2+ax+b$ can be factored into the product of two (not necessarily distinct) linear factors with integer coefficients. Find the remainder when $S$ is divided by $1000$.
-Provide a single integer answer.
-### Answer
-600
-
-### Question
-In $\\triangle ABC, AB = AC = 10$ and $BC = 12$. Point $D$ lies strictly between $A$ and $B$ on $\\overline{AB}$ and point $E$ lies strictly between $A$ and $C$ on $\\overline{AC}$ so that $AD = DE = EC$. Then $AD$ can be expressed in the form $\\dfrac{p}{q}$, where $p$ and $q$ are relatively prime positive integers. Find $p+q$.
-Provide a single integer answer.
-### Answer
-289"""
+SYSTEM_PROMPT = """Give answers to user's questions using single numbers. Each answer is an integer between 0 and 1000."""
 
 #####
 # TODO: Below is partially adapted better answer parsing from
